@@ -1,0 +1,26 @@
+public class soldier extends GameEntity implements serializable{
+       private int hp;
+       private int attack;
+       
+       public int getHp(){
+         return hp;
+       }
+       public void setHp(int amount){
+         this.hp = amount;
+       }
+       public void minushp(int amount){
+         hp -= amount; 
+       }
+       public void gainHp(int amount){
+         hp += amount;
+       }
+       public void setAttack(int amount){
+         this.attack = amount;
+       }
+       public int getAttack(){
+         return attack;
+       }
+       
+     
+
+}
