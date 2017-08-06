@@ -1,4 +1,4 @@
-public class GameEntityManager{
+public class GameEntityManager implements serializable{
     ArrayList<GameEntity> entitys;
       public GameEntityMnanager(ArrayList<GameEntity> entitys){
         this.entitys = entitys;
