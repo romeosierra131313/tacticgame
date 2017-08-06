@@ -1,6 +1,6 @@
 import Gdx.Gam
 
-Public class GameEntity{
+Public class GameEntity implements serializable{
       private int x;
       private int y;
       transient Texture t;
@@ -27,4 +27,20 @@ public Texture getT(){
 }
 public void setT(Texture t){
   this.t = t;
+}
+public void move(int x,int y,float dt){   ////////dt is deltatime
+   this.dt = dt;
+   if((Gdx.graphics.getDeltaTime - dt) > 1f){
+       tempx = this.x - x;
+       tempy = this.y - y;
+       if(this.x != x){
+          x+=1;
+       }
+       if(this.y != y){
+         y += 1;
+       }
+       dt = Gdx.graphics.getDeltaTime();
+       
+   }
+  
 }
