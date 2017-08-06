@@ -1,0 +1,28 @@
+public class UnitFactory{
+       Texture unit1;
+     //Texture unit2;  
+       public UnitFactory(){
+       unit1 = new Texture(Gdx.files.internal("/textures/unit1.png"));
+     //unit2 = new Texture(Gdx.files.internal("/textures/unit2.png"));
+     
+       }
+       
+       
+       public GameEntity newUnit(String type,int x , int y){
+        if(type.equals("unit1")){
+          Unit1 u = new Unit1(){}
+          u.setX();
+          u.setY();
+          u.setT(unit1T);
+          return u;
+          }
+      //if(type.equals("unit2")){
+       //   Unit2 u = new Unit2(){}
+       //   u.setX();
+       //   u.setY();
+       //   u.setT(unit2T);
+       //  } 
+          
+       }
+
+}
