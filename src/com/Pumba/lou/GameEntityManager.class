@@ -1,0 +1,26 @@
+public class GameEntityManager{
+    ArrayList<GameEntity> entitys;
+      public GameEntityMnanager(ArrayList<GameEntity> entitys){
+        this.entitys = entitys;
+      }
+      public void render(SpriteBatch sb,ShapeRenderer sr,OrthographicCamera camera){
+         sb.begin;
+         for(GameEntity ge : entitys){
+           sb.draw(ge.getT(),ge.getX(),ge.getY());
+         }
+         sb.end;
+      }
+      
+      public GameEntity getEntity(int index){
+         return entitys.get(index);
+       }
+      public void addEntity(GameEntity ge){
+         entitys.add(ge);
+      }
+      public void removeEntity(GameEntity ge){
+         entitys.remove(ge);
+      }
+      
+ 
+
+}
