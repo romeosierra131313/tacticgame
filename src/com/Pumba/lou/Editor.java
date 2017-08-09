@@ -11,7 +11,6 @@ import com.badlogic.gdx.Input.TextInputListener;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -22,7 +21,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 
 /**
  *
@@ -33,9 +31,8 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
      int mWidth;
      int tSize;
      Tile t;
-    // ArrayList<Tile> tList ;
      transient Rectangle mouse;
-      transient int mousex;
+     transient int mousex;
      transient  int mousey;
       String type = "grass";
      map m;
@@ -73,8 +70,7 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
          
      }
      void render(SpriteBatch sb,ShapeRenderer sr,OrthographicCamera camera){
-         Gdx.gl.glClearColor(1, 1, 1, 1);
-	 Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+         
          sr.setProjectionMatrix(camera.combined);
          movemouse();
          
@@ -150,9 +146,8 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
           
           for(int h = 0 ; h < mWidth * mHeight; h++ ){
             if(m.tList.get(h).r.contains(v3.x,v3.y)){
-                 if(type == "road" ){
-               m.tList.get(h).setTile("road", getTexture(type,ass));
-            }
+            if(type == "road" ){
+               m.tList.get(h).setTile("road", getTexture(type,ass));}
             if(type == "water" ){
                m.tList.get(h).setTile("water", getTexture(type,ass));}
             if(type =="grass" ){
@@ -223,12 +218,7 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
        
        }   
     }
-    private Vector3 unproject(int i ,int i2) {
-         Vector3 v3 = new Vector3();
-        v3.set(i,i2,0);
-        v3 = camera.unproject(v3);
-        return v3;
-    } 
+
     private void movemouse() {
        if (Gdx.input.isKeyPressed(Keys.A)){
            camera.translate(-3, 0, 0);

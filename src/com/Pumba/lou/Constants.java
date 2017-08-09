@@ -12,4 +12,5 @@ package com.Pumba.lou;
 public class Constants {
     
     enum GameState{MainMenu,Edit,Game}
+    
 }

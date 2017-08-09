@@ -50,7 +50,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
         
         
 	@Override
-	public void create () {
+    public void create () {
             width = Gdx.graphics.getWidth();
             height = Gdx.graphics.getHeight();
             hitboxWidth = width/10;
@@ -75,16 +75,13 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
             ass = new AssetManager();
             loadtiles(ass);
             
-          
-           // ass.update();
             
             	
 	}
-
-	@Override
-	public void render () {
+@Override
+    public void render () {
                 //k7OiU72XUpy5
-		Gdx.gl.glClearColor(1, 0, 0, 1);
+		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
                 sb.setProjectionMatrix(camera.combined);
                 sr.setProjectionMatrix(camera.combined);
@@ -110,27 +107,27 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
                
                }
                if(gs == gs.Game){
+                   sb.begin();
+                   sr.begin();
                    mg.render(sb,sr,camera);
+                   sb.end();
+                   sr.end();
                }
                
                 
 		
 	}
-
-    @Override
+@Override
     public boolean keyDown(int i) {
         
         return true; }
-
-    @Override
+@Override
     public boolean keyUp(int i) {
        return true; }
-
-    @Override
+ @Override
     public boolean keyTyped(char c) {
         return true; }
-
-    @Override
+@Override
     public boolean touchDown(int i, int i1, int i2, int i3) {
           Vector3 v3 = new Vector3();
           v3 = unproject(Gdx.input.getX(),Gdx.input.getY());
@@ -138,7 +135,8 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
            getmapsize(); 
         }
         if(Load.contains(v3.x, v3.y)){
-           LoadMap();   //later on change to accpet filename
+            
+          LoadMap();   //later on change to accpet filename
         
         }
            
@@ -147,16 +145,13 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
          
         
         return true; }
-
-    @Override
+@Override
     public boolean touchUp(int i, int i1, int i2, int i3) {
         return true; }
-
-    @Override
+@Override
     public boolean touchDragged(int i, int i1, int i2) {
         return true; }
-
-    @Override
+@Override
     public boolean mouseMoved(int i, int i1) {
           Vector3 v3 = new Vector3();
           v3 = unproject(Gdx.input.getX(),Gdx.input.getY());
@@ -171,19 +166,16 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
          
         }  
         return true; }
-
-    @Override
+ @Override
     public boolean scrolled(int i) {
         return true; }
-
-    private Vector3 unproject(int i ,int i2) {
+    public Vector3 unproject(int i ,int i2) {
          Vector3 v3 = new Vector3();
         v3.set(i,i2,0);
         v3 = camera.unproject(v3);
         return v3;
     }
-
-    @Override
+@Override
     public void input(String string) {
       q.add(string);
        
@@ -199,26 +191,25 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
         }
       
     }
-
-    @Override
+@Override
     public void canceled() {
         }
-   public Texture getTexture(String type, AssetManager ass){
+    public Texture getTexture(String type, AssetManager ass){
      
-       if(type == "grass"){
+       if("grass".equals(type)){
           grass =    ass.get("grass.png", Texture.class);
           return grass; 
        
        }
-        if(type == "road"){
+        if("road".equals(type)){
      road =    ass.get("road.png", Texture.class);
      return road;
         }
-         if(type == "water"){
+         if("water".equals(type)){
      water =    ass.get("water.png", Texture.class);
      return water;
          }
-         if(type == "town"){
+         if("town".equals(type)){
    town =    ass.get("town.png", Texture.class);
      return town;
          }
@@ -228,23 +219,20 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
    
 
 }  
-   private void loadtiles(AssetManager ass) {
+    private void loadtiles(AssetManager ass) {
        ass.load("grass.png", Texture.class);
-            ass.load("water.png",Texture.class);
-             ass.load("road.png",Texture.class);
-              ass.load("town.png",Texture.class); 
-               ass.finishLoading();
+       ass.load("water.png",Texture.class);
+       ass.load("road.png",Texture.class);
+       ass.load("town.png",Texture.class); 
+       ass.load("unit1.png",Texture.class);
+       ass.finishLoading();
            }
-
-
-
     private void getmapsize() {
         
          Gdx.input.getTextInput(this, "select map width", "32", "");
          Gdx.input.getTextInput(this, "select map height", "32", "");
          Gdx.input.getTextInput(this, "select tile size", "32", "");  }
-
-    private void LoadMap() {
+    public void LoadMap() {
           try {System.out.println("trying");
          FileInputStream fileIn = new FileInputStream("maps/ex.map");
          ObjectInputStream in = new ObjectInputStream(fileIn);
@@ -253,11 +241,10 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
               
                                     ////for editor mode
                
-               System.out.println("map");
+               
                mg = new MainGame(camera,ass, m);
                loadtiles(ass);
-                 System.out.println("map2"); 
-              // mg.setMap(m);
+               mg.rebuildmap(m);
                
                Gdx.input.setInputProcessor(mg);
                gs = gs.Game;
@@ -273,4 +260,6 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
          c.printStackTrace();
         
       } }
+
+
 }
