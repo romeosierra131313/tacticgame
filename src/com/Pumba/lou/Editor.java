@@ -123,9 +123,11 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
                m.tList.get(h).setTile("road", getTexture(type,ass));
             }
             if(type == "water" ){
-               m.tList.get(h).setTile("water", getTexture(type,ass));}
+               m.tList.get(h).setTile("water", getTexture(type,ass));
+               m.tList.get(h).isPathable=false; }
             if(type =="grass" ){
-               m.tList.get(h).setTile("grass",getTexture(type,ass));}
+               m.tList.get(h).setTile("grass",getTexture(type,ass));
+             m.tList.get(h).isPathable=true;}
             if(type == "town" ){
                 m.tList.get(h).setTile("town",getTexture(type,ass));}
               
@@ -147,13 +149,19 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
           for(int h = 0 ; h < mWidth * mHeight; h++ ){
             if(m.tList.get(h).r.contains(v3.x,v3.y)){
             if(type == "road" ){
-               m.tList.get(h).setTile("road", getTexture(type,ass));}
+               m.tList.get(h).setTile("road", getTexture(type,ass));
+                m.tList.get(h).isSet = true;}
             if(type == "water" ){
-               m.tList.get(h).setTile("water", getTexture(type,ass));}
+               m.tList.get(h).setTile("water", getTexture(type,ass));
+                m.tList.get(h).isSet = true;
+                m.tList.get(h).isPathable=false;}
             if(type =="grass" ){
-               m.tList.get(h).setTile("grass",getTexture(type,ass));}
+               m.tList.get(h).setTile("grass",getTexture(type,ass));
+               m.tList.get(h).isSet = true;
+             m.tList.get(h).isPathable=true;}
             if(type =="town" ){
-               m.tList.get(h).setTile("town",getTexture(type,ass));}
+               m.tList.get(h).setTile("town",getTexture(type,ass));
+                m.tList.get(h).isSet = true;}
             
              m.tList.get(h).isSet = true;
                System.out.println(h);

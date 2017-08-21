@@ -22,7 +22,7 @@ public class Tile implements Serializable {
       int x;
       int y;
       transient Texture t;
-      
+      Boolean isPathable=true;
       Boolean isSet = false;
       
       

@@ -12,10 +12,11 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.Pumba.lou.UnitFactory;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  *
@@ -25,10 +26,14 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
      map m;
      UnitFactory uf;
      GameEntityManager gem;
+     PathFinding pf;
      float dt;
      Rectangle rt;
      actionUI aui;
      Boolean actionUIisOpen = false;
+     HashMap<Vector2,Tile> maplist;
+     GameEntity anentity;
+     
     
     public MainGame(OrthographicCamera camera,AssetManager ass,map m){
      this.m = m;
@@ -36,17 +41,18 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
      this.camera = camera;
      rt = new Rectangle();
      camera.setToOrtho(true, 1024, 720);
-     
+     maplist = new HashMap();
       aui = new actionUI();
       uf = new UnitFactory(ass);
+      pf = new PathFinding(maplist);
       
-      GameEntity e = uf.newUnit("soldier", 0, 0);
-      e.setX(256);
-      e.setY(160);
-      e.setT(ass.get("unit1.png", Texture.class));
-      e.setHitbox(e.getX(), e.getY(), 256, 160);
+      anentity = uf.newUnit("soldier", 0, 0);
+      anentity.setX(256);
+      anentity.setY(160);
+      anentity.setT(ass.get("unit1.png", Texture.class));
+      anentity.setHitbox(anentity.getX(), anentity.getY(), 256, 160);
       gem = new  GameEntityManager();
-      gem.addEntity(e);
+      gem.addEntity(anentity);
      
     }
     
@@ -55,10 +61,14 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
      dt += Gdx.graphics.getDeltaTime();
      if(dt >= 1f){
       dt = 0;
-  }
+  }  if(gem.getMoving() != null)
+         {gem.getMoving().move(pf.Path.get(pf.Path.size()-1).x,pf.Path.get(pf.Path.size()-1).y, dt); 
+         }
      m.render(sb, sr, camera);
      drawgrid(sb, sr,ass);
-     gem.render(sb, sr, camera); 
+     pf.rendermoveable(sb, sr, camera);
+     gem.render(sb, sr, camera,dt); 
+    
     if(actionUIisOpen){
      
       aui.render(sb, sr, camera);
@@ -98,19 +108,19 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
 
     @Override
     public boolean touchDown(int i, int i1, int i2, int i3) {
-        
-       Vector3 v3 = new Vector3();
+        // gem.getEntity(0).move(288 ,160, dt);
+        Vector3 v3 = new Vector3();
+        Vector2 v2 = new Vector2();
        v3 = unproject(Gdx.input.getX(),Gdx.input.getY());
-            if(! actionUIisOpen){
-             whichTile(v3);
-             whichEntity(v3);}
-            if( actionUIisOpen){
-               for (actionUIitem e :  aui.actionUIitems){
-                   if(e.r.contains(v3.x, v3.y)){
-                   System.out.println("move goddamit");
-                   }
-               }
+            if(gem.getWaiting() !=null){
+                v2 = whichTile(v3); 
+                Vector2 v2start = new Vector2(gem.getWaiting().getLocation());
+                pf.setPath(v2start, v2);
+                gem.getWaiting().setMoving();
+                
+                
             }
+      
                   
                 
                 
@@ -119,7 +129,26 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
 
     @Override
     public boolean touchUp(int i, int i1, int i2, int i3) {
-         
+          Vector3 v3 = new Vector3();
+       v3 = unproject(Gdx.input.getX(),Gdx.input.getY());
+            if(!actionUIisOpen){
+             whichTile(v3);
+            if( whichEntity(v3) != null){
+              openactionUI(whichEntity(v3));
+            }
+            
+            }
+            if( actionUIisOpen){
+               for (actionUIitem e :  aui.actionUIitems){
+                   if(e.r.contains(v3.x, v3.y)){
+                      // actionUIisOpen = false;
+                    
+                       pf.getpathable(anentity);
+                       anentity.setWaiting();
+                       }
+                     }
+                    }
+            
        return true; }
 
     @Override
@@ -144,9 +173,24 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
            for(int i = 0 ; i < m.tList.size();i++){
               m.getTile(i).r = new Rectangle();
               Tile temp = new Tile(m.getTile(i).x,m.getTile(i).y,m.getTile(i).rwidth,m.getTile(i).rwidth);
+              Vector2 v2 = new Vector2();
+              v2.add(temp.x, temp.y);
               temp.type = m.getTile(i).type;
+              if("null".equals(temp.type)) {}else{
+                      temp.isSet = true;
+                      temp.isPathable = true;
+              }
+                  if("water".equals(temp.type)){          //////////SET BACK NON PATHABLE HERE/////////
+                      temp.isPathable = false;
+                      temp.isSet =true;
+                      
+                  }
+               
+              
+              maplist.put(v2, temp);
               m.tList.remove(i);
               m.tList.add(i, temp);
+               
              
              
               
@@ -156,26 +200,35 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
             
             
     }
-    public void whichTile(Vector3 v3){
+    public Vector2 whichTile(Vector3 v3){
+        Vector2 v2 = new Vector2();
        for(int p = 0; p <= m.tList.size()-1;p++){
                    if(m.tList.get(p).r.contains(v3.x, v3.y)){
                     System.out.println(m.tList.get(p).r.x + " + " + m.tList.get(p).r.y); 
-                  
+                     
+                     v2.set(m.tList.get(p).getX(), m.tList.get(p).getY());
+                     return v2;
                    } /// does contain click
                 }//end of loop does not contain click
+       return null;
     }
 
-    public void whichEntity(Vector3 v3) {
+    public GameEntity whichEntity(Vector3 v3) {
        for (GameEntity e : gem.entitys){
            if(e.r.contains(v3.x, v3.y)){
-          aui.addaction(uf.newMove(e.getX(), e.getY()));
+          return e;
+       }
+    }      return null;
+    }
+    public void openactionUI(GameEntity e){
+        aui.addaction(uf.newMove(e.getX(), e.getY()));
            actionUIisOpen = true;
            
            }
-       }  
-    }
-        
+    
+   
 
 
+    
 
 }

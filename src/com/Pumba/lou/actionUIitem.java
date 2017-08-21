@@ -19,6 +19,7 @@ import com.badlogic.gdx.math.Vector2;
  * @author Stefan
  */
 public class actionUIitem {
+
     Rectangle r;
     BitmapFont bf;
     String s;
@@ -43,4 +44,5 @@ public class actionUIitem {
        sr.box(r.x, r.y, 0, r.width, r.height, 0);
        bf.draw(sb, s, rcentre.x, rcentre.y);
     }
+   
 }

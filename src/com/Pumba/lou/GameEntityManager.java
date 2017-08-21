@@ -21,9 +21,11 @@ public class GameEntityManager implements Serializable{
            entitys = new ArrayList<GameEntity>();
         
       }
-      public void render(SpriteBatch sb,ShapeRenderer sr,OrthographicCamera camera){
-         
+      public void render(SpriteBatch sb,ShapeRenderer sr,OrthographicCamera camera,float dt){
+        
+        
          for(GameEntity ge : entitys){
+           
            sb.draw(ge.t,ge.getX(),ge.getY());
          }
          
@@ -40,7 +42,21 @@ public class GameEntityManager implements Serializable{
       public void removeEntity(GameEntity ge){
          entitys.remove(ge);
       }
-      
+      public GameEntity getMoving(){
+         for (int i =0; i < entitys.size(); i++){
+             if(entitys.get(i).getMoving()){
+               return entitys.get(i);
+             }
+         } return null;
+      }
+      public GameEntity getWaiting(){
+         for (int i =0; i < entitys.size(); i++){
+             if(entitys.get(i).getWaiting()){
+               return entitys.get(i);
+             }
+         } return null;
+      }
+}
  
 
-}
+

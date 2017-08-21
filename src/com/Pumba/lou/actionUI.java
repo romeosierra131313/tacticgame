@@ -5,6 +5,7 @@
  */
 package com.Pumba.lou;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -22,7 +23,8 @@ public class actionUI {
     actionUIitems = new ArrayList<actionUIitem>();
     }
     public void render(SpriteBatch sb,ShapeRenderer sr,OrthographicCamera camera){
-        
+        sr.set(ShapeRenderer.ShapeType.Line);
+        sr.setColor(Color.RED);
         for (actionUIitem i : actionUIitems){
           i.render(sb, sr, camera);
         }
