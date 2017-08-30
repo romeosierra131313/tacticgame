@@ -19,29 +19,29 @@ import com.badlogic.gdx.math.Vector2;
  * @author Stefan
  */
 public class actionUIitem {
-
+    
     Rectangle r;
-    BitmapFont bf;
+    
     String s;
     Vector2 rcentre;
     public actionUIitem(int place,int x,int y,String s){
         this.s = s;
     r = new Rectangle();
-    r.set(x, (y+ (place*32)),( Gdx.graphics.getWidth()/10)*2, Gdx.graphics.getHeight()/10);
+    r.set(x, (y+ (place*32)),( Gdx.graphics.getWidth()/10)*2, Gdx.graphics.getHeight()/22);
     rcentre = new Vector2();
     rcentre = r.getCenter(rcentre);
     
-    bf = new BitmapFont();
-    bf.setColor(Color.BLACK);
-    bf.isFlipped();
-    bf.getData().setLineHeight(Gdx.graphics.getHeight()/10);
+   
     
     
     
     }
-    public void render(SpriteBatch sb,ShapeRenderer sr,OrthographicCamera camera){
+    public void render(SpriteBatch sb,ShapeRenderer sr,BitmapFont bf,OrthographicCamera camera){
        sr.setColor(Color.PINK);
        sr.box(r.x, r.y, 0, r.width, r.height, 0);
+        bf.setColor(Color.BLACK);
+      
+        bf.getData().setLineHeight(Gdx.graphics.getHeight()/10);
        bf.draw(sb, s, rcentre.x, rcentre.y);
     }
    

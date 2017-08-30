@@ -48,8 +48,20 @@ public class UnitFactory {
        
        
        /////////UI ELEMENTS//////////
-       public actionUIitem newMove(int x,int y ){
-        actionUIitem move = new actionUIitem(1,x,y,"move");
+       public actionUIitem newMove(int place,int x,int y ){
+        actionUIitem move = new actionUIitem(place,x,y,"move");
         return move;
+       }
+       public actionUIitem newAttack(int place,int x,int y ){
+        actionUIitem move = new actionUIitem(place,x,y,"Attack");
+        return move;
+       }
+       public actionUIitem newWait(int place,int x,int y ){
+        actionUIitem wait = new actionUIitem(place,x,y,"Wait");
+        return wait;
+       }
+        public actionUIitem newCapture(int place,int x,int y ){
+        actionUIitem capture = new actionUIitem(place,x,y,"Capture");
+        return capture;
        }
 }

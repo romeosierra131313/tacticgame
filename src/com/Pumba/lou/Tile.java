@@ -24,6 +24,7 @@ public class Tile implements Serializable {
       transient Texture t;
       Boolean isPathable=true;
       Boolean isSet = false;
+      Boolean isOccupied = false;
       
       
     public Tile(int x, int y,int width,int height){
@@ -57,4 +58,13 @@ public class Tile implements Serializable {
     this.y = y;
     }
     public int getY(){return y;}
+    public Boolean getOccupied(){
+     return isOccupied;
+    }
+    public void setOcuppied(Boolean b ){
+     isOccupied = b;
+    }
+    public void setr(int x, int y, int width,int height){
+      r.set(x, y, width, height);
+    }
 }

@@ -10,7 +10,9 @@ package com.Pumba.lou;
  * @author Stefan
  */
 public class Constants {
-    
+    public final int tileWidth = 32;
     enum GameState{MainMenu,Edit,Game}
-    
+    public int gettwidth(){
+      return tileWidth;
+    }
 }

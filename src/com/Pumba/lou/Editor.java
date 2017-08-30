@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  *
@@ -31,16 +32,20 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
      int mWidth;
      int tSize;
      Tile t;
-     transient Rectangle mouse;
-     transient int mousex;
-     transient  int mousey;
-      String type = "grass";
+     Boolean main = false;
+     Boolean ready = false;
+     Rectangle mouse;
+     int mousex;
+     int mousey;
+      String typeSelected = "grass";
      map m;
-     AssetManager ass;
+     GameEntityManager gem;
+     ArrayList<Tile> ui ;
      
     
     
      public Editor(int height, int width,int size,OrthographicCamera camera, AssetManager ass){
+           
      mHeight = height;
      mWidth = width;
      this.ass = ass;
@@ -51,13 +56,14 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
      m.tilewidth = size;
      
      tSize = size;
-     
+     gem = new GameEntityManager();
      camera.setToOrtho(true, 1024, 720);
      //tList = new ArrayList<Tile>();
      mouse = new Rectangle();
      mouse.set(0, 0, 1, 1);
       creategrid(mWidth,mHeight);
-     
+      ui = new ArrayList<Tile>();
+      createUI();
      
       
       
@@ -76,8 +82,12 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
          
          camera.update();
          sr.begin(ShapeRenderer.ShapeType.Line);
+         
+        // gem.render(sb, sr, camera, width);
          sr.setColor(Color.BLACK);
          drawgrid(sb, sr);
+         drawentitys(sb,sr);
+         drawui(sb,sr);
          sr.end();
          
      
@@ -86,19 +96,53 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
     @Override
     public boolean keyDown(int i) {
         if (Gdx.input.isKeyPressed(Keys.NUM_1)){
-           type = "grass";
+           typeSelected = "grass";
          } 
         if (Gdx.input.isKeyPressed(Keys.NUM_2)){
-           type = "road";
+           typeSelected = "road";
          } 
         if (Gdx.input.isKeyPressed(Keys.NUM_3)){
-           type = "water";
+           typeSelected = "water";
          } 
         if (Gdx.input.isKeyPressed(Keys.NUM_4)){
-           type = "town";
+           typeSelected = "town";
+         } 
+        if (Gdx.input.isKeyPressed(Keys.NUM_5)){
+           typeSelected = "entity";
+         }
+        if (Gdx.input.isKeyPressed(Keys.NUM_6)){
+           typeSelected = "entitye";
+         }
+        if (Gdx.input.isKeyPressed(Keys.SPACE)){
+           main = true;
+         }
+        if (Gdx.input.isKeyPressed(Keys.Z)){
+           typeSelected = "grass";
+           int h =0;
+           for(Tile t : m.tList){
+              m.tList.get(h).setTile("grass",getTexture(typeSelected,ass));
+              m.tList.get(h).isSet = true;
+              
+              h++;
+           }
+         } 
+        if (Gdx.input.isKeyPressed(Keys.X)){
+           typeSelected = "water";
+           int h =0;
+           for(Tile t : m.tList){
+              m.tList.get(h).setTile("water",getTexture(typeSelected,ass));
+              m.tList.get(h).isSet = true;
+               m.tList.get(h).isPathable = false; 
+              h++;
+           }
          } 
          if (Gdx.input.isKeyPressed(Keys.ENTER)){
-           Gdx.input.getTextInput(this, "name", "example", "");
+            // getMapName();
+             for(GameEntity e : gem.entitys){
+         System.out.println(e.getisEnemy());
+        
+       }
+         //  Gdx.input.getTextInput(this, "name", "example", "");
          } 
         return true; }
 
@@ -115,22 +159,65 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
          
            Vector3 v3 = new Vector3();
           v3 = unproject(Gdx.input.getX(),Gdx.input.getY());
-          
+          for(Tile t : ui){
+             
+             if(t.r.contains(v3.x,v3.y)){
+                   System.out.println(t.type);
+        if ("grass".equals(t.type)){
+           typeSelected = "grass";
+         } 
+        if ("road".equals(t.type)){
+           typeSelected = "road";
+         } 
+        if ("water".equals(t.type)){
+           typeSelected = "water";
+         } 
+        if ("town".equals(t.type)){
+           typeSelected = "town";
+         } 
+        if ("entity".equals(t.type)){
+           typeSelected = "entity";
+         }
+               return true;
+             }
+          }
           for(int h = 0 ; h < mWidth * mHeight; h++ ){
             if(m.tList.get(h).r.contains(v3.x,v3.y)){
                System.out.println(h);
-            if(type == "road" ){
-               m.tList.get(h).setTile("road", getTexture(type,ass));
+            if(typeSelected == "road" ){
+               m.tList.get(h).setTile("road", getTexture(typeSelected,ass));
+               m.tList.get(h).isPathable=true;
             }
-            if(type == "water" ){
-               m.tList.get(h).setTile("water", getTexture(type,ass));
+            if(typeSelected == "water" ){
+               m.tList.get(h).setTile("water", getTexture(typeSelected,ass));
                m.tList.get(h).isPathable=false; }
-            if(type =="grass" ){
-               m.tList.get(h).setTile("grass",getTexture(type,ass));
+            if(typeSelected =="grass" ){
+               m.tList.get(h).setTile("grass",getTexture(typeSelected,ass));
              m.tList.get(h).isPathable=true;}
-            if(type == "town" ){
-                m.tList.get(h).setTile("town",getTexture(type,ass));}
-              
+            if(typeSelected == "town" ){
+                m.tList.get(h).setTile("town",getTexture(typeSelected,ass));
+                GameEntity e = new GameEntity();
+                e.newEntity(m.tList.get(h).getX(), m.tList.get(h).getY());
+                m.tList.get(h).setOcuppied(Boolean.TRUE);
+                e.setT(ass.get("town.png", Texture.class));
+                gem.addtown(e);
+            }
+            if(typeSelected == "entity" ){
+              GameEntity e = new GameEntity();
+              e.newEntity(m.tList.get(h).getX(), m.tList.get(h).getY());
+              m.tList.get(h).setOcuppied(Boolean.TRUE);
+              e.setT(ass.get("unit1.png", Texture.class));
+              e.setisEnemy(false);
+              gem.addEntity(e);
+            }  
+            if(typeSelected == "entitye" ){
+              GameEntity e = new GameEntity();
+              e.newEntity(m.tList.get(h).getX(), m.tList.get(h).getY());
+              m.tList.get(h).setOcuppied(Boolean.TRUE);
+              e.setT(ass.get("unit1.png", Texture.class));
+              e.setisEnemy(true);
+              gem.addEntity(e);
+            }
             
              m.tList.get(h).isSet = true;
             
@@ -148,19 +235,24 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
           
           for(int h = 0 ; h < mWidth * mHeight; h++ ){
             if(m.tList.get(h).r.contains(v3.x,v3.y)){
-            if(type == "road" ){
-               m.tList.get(h).setTile("road", getTexture(type,ass));
+            if(typeSelected == "road" ){
+               m.tList.get(h).setTile("road", getTexture(typeSelected,ass));
                 m.tList.get(h).isSet = true;}
-            if(type == "water" ){
-               m.tList.get(h).setTile("water", getTexture(type,ass));
+            if(typeSelected == "water" ){
+               m.tList.get(h).setTile("water", getTexture(typeSelected,ass));
                 m.tList.get(h).isSet = true;
                 m.tList.get(h).isPathable=false;}
-            if(type =="grass" ){
-               m.tList.get(h).setTile("grass",getTexture(type,ass));
+            if(typeSelected =="grass" ){
+               m.tList.get(h).setTile("grass",getTexture(typeSelected,ass));
                m.tList.get(h).isSet = true;
              m.tList.get(h).isPathable=true;}
-            if(type =="town" ){
-               m.tList.get(h).setTile("town",getTexture(type,ass));
+            if(typeSelected =="town" ){
+              GameEntity e = new GameEntity();
+              e.newEntity(m.tList.get(h).getX(), m.tList.get(h).getY());
+              m.tList.get(h).setOcuppied(Boolean.TRUE);
+              e.setT(ass.get("town.png", Texture.class));
+              gem.addtown(e);
+               m.tList.get(h).setTile("town",getTexture(typeSelected,ass));
                 m.tList.get(h).isSet = true;}
             
              m.tList.get(h).isSet = true;
@@ -217,27 +309,38 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
     
     }
     private void drawgrid(SpriteBatch sb,ShapeRenderer sr) {
+        
        for(int i = 0; i < m.tList.size() ; i++){
-          sr.box(m.tList.get(i).x, m.tList.get(i).y, 0, tSize , tSize, 0);
-          if(m.tList.get(i).isSet == true){
-              sb.begin();
+           sr.box(m.tList.get(i).x, m.tList.get(i).y, 0, tSize , tSize, 0);
+           if(m.tList.get(i).isSet == true){
+             sb.begin();
               sb.draw(ass.get(m.tList.get(i).type + ".png",Texture.class)  , m.tList.get(i).x, m.tList.get(i).y);
-          sb.end();} else {}
-       
-       }   
+              sb.end();
+             
+              
+          } 
+          
+         
+  //
+       } 
+     
     }
 
     private void movemouse() {
        if (Gdx.input.isKeyPressed(Keys.A)){
            camera.translate(-3, 0, 0);
+           setUIboxLocation();
          }
          if (Gdx.input.isKeyPressed(Keys.S)){
-           camera.translate(0, -3, 0);}
+           camera.translate(0, -3, 0);
+         setUIboxLocation();}
          if (Gdx.input.isKeyPressed(Keys.D)){
            camera.translate(3, 0, 0);
+           setUIboxLocation();
          }
          if (Gdx.input.isKeyPressed(Keys.W)){
              camera.translate(0, 3, 0);
+             setUIboxLocation();
          }
         camera.update(); }
     
@@ -248,6 +351,17 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
          new FileOutputStream( "./maps/" + temp + ".map");
          ObjectOutputStream out = new ObjectOutputStream(fileOut);
          out.writeObject(m);
+         out.close();
+         fileOut.close();
+         
+      }catch(IOException i) {
+         i.printStackTrace();
+      }
+      try {
+         FileOutputStream fileOut =
+         new FileOutputStream( "./maps/" + temp + ".dat");
+         ObjectOutputStream out = new ObjectOutputStream(fileOut);
+         out.writeObject(gem);
          out.close();
          fileOut.close();
          
@@ -271,4 +385,104 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
     public void canceled() {
         }
 
+    private void drawentitys(SpriteBatch sb, ShapeRenderer sr) {
+         sb.begin();
+       for(GameEntity e : gem.entitys){
+         sb.draw(ass.get("unit1.png", Texture.class ),e.getX(),e.getY());
+        
+       } sb.end();
+    }
+     @Override
+     public void LoadMap() {
+    
+               
+               mg = new MainGame(camera,ass, m);
+               mg.rebuildmap(m);
+               Gdx.input.setInputProcessor(mg);
+               gs = gs.Game;
+              
+         }
+
+    private void LoadMapdata() {
+      
+               mg.putMapData(gem);
+            }
+ 
+
+    public void getMapName() {
+      Gdx.input.getTextInput(this, "name", "example", "");  }
+
+    private void createUI() {
+         Tile t  = new Tile(Math.round(camera.viewportHeight/10),Math.round(camera.viewportHeight/10),
+                            Math.round( camera.viewportHeight/10),Math.round(camera.viewportHeight/10));
+         t.setTile("town",getTexture(typeSelected,ass));
+         t.type = "town";
+  ui.add(t);
+         Tile t2  = new Tile(Math.round(camera.viewportHeight/10),Math.round(camera.viewportHeight/10),
+                            Math.round( camera.viewportHeight/10),Math.round(camera.viewportHeight/10));
+         t2.setTile("unit1",getTexture(typeSelected,ass));
+         t2.type = "entity";
+  ui.add(t2);
+    Tile t3  = new Tile(Math.round(camera.viewportHeight/10),Math.round(camera.viewportHeight/10),
+                            Math.round( camera.viewportHeight/10),Math.round(camera.viewportHeight/10));
+         t3.setTile("road",getTexture(typeSelected,ass));
+         t3.type = "road";
+  ui.add(t3);
+         Tile t4  = new Tile(Math.round(camera.viewportHeight/10),Math.round(camera.viewportHeight/10),
+                            Math.round( camera.viewportHeight/10),Math.round(camera.viewportHeight/10));
+         t4.setTile("water",getTexture(typeSelected,ass));
+         t4.type = "water";
+  ui.add(t4);
+         Tile t5  = new Tile(Math.round(camera.viewportHeight/10),Math.round(camera.viewportHeight/10),
+                            Math.round( camera.viewportHeight/10),Math.round(camera.viewportHeight/10));
+         t5.setTile("grass",getTexture(typeSelected,ass));
+         t5.type = "grass";
+  ui.add(t5);
+         
+         for(Tile ty : ui){
+              System.out.println(ty.type);
+             
+          }
+         
+         
+         
+         setUIboxLocation();
+       
+    }
+    private void setUIboxLocation(){
+        int counter = 0;
+       for(Tile r : ui){
+           r.setX(Math.round(camera.position.x) - (Gdx.graphics.getWidth()/2));
+           r.setY(Math.round(camera.position.y) - counter );
+           r.setr(Math.round(camera.position.x) - (Gdx.graphics.getWidth()/2), 
+                 (Math.round(camera.position.y) - counter ), r.rwidth    , r.rheight);
+           counter +=32;
+     } 
+           counter = 0;
+    }
+    public Tile getUI(int i){
+      return ui.get(i);
+    }
+    public void addUI(Tile t){
+      ui.add(t);
+    }
+
+    public void drawui(SpriteBatch sb, ShapeRenderer sr) {
+       
+       sr.setColor(Color.BLUE);
+       sr.circle(ui.get(0).x, ui.get(0).y, tSize);
+       sr.circle(ui.get(0).x, ui.get(1).y, tSize);
+       sr.circle(ui.get(0).x, ui.get(2).y, tSize);
+       sr.circle(ui.get(0).x, ui.get(3).y, tSize);
+       sr.circle(ui.get(0).x, ui.get(4).y, tSize);
+       sb.begin();
+       sb.draw(ass.get("grass.png", Texture.class ),ui.get(0).x,ui.get(4).y);
+       sb.draw(ass.get("water.png", Texture.class ),ui.get(1).x,ui.get(3).y);
+        sb.draw(ass.get("road.png", Texture.class ),ui.get(2).x,ui.get(2).y);
+        sb.draw(ass.get("town.png", Texture.class ),ui.get(3).x,ui.get(0).y);
+       sb.draw(ass.get("unit1.png", Texture.class ),ui.get(4).x,ui.get(1).y);
+       
+       sb.end();
+      
+    }
 }

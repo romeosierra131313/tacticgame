@@ -14,12 +14,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -71,6 +71,8 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
             camera = new OrthographicCamera();
             camera.setToOrtho(false, 800, 480);
             camera.position.set(800/2f,480/2f, 0);
+            
+            
             q = new LinkedList<String>();
             ass = new AssetManager();
             loadtiles(ass);
@@ -85,14 +87,13 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
                 sb.setProjectionMatrix(camera.combined);
                 sr.setProjectionMatrix(camera.combined);
+                
                 camera.update();
                
-                
-                
                if(gs == gs.MainMenu) {
-                 sb.begin();
+                 sb.begin(); 
                 
-                bf.setColor(Color.BLACK);
+                
                 bf.draw(sb, "Editor", Start.getCenter(Vector2.Zero).x,  Start.getCenter(Vector2.Zero).y);
                 bf.draw(sb, "Load",  Load.getCenter(Vector2.Zero).x, Load.getCenter(Vector2.Zero).y);
                 sb.end();
@@ -102,19 +103,36 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
                 sr.box(Load.x, Load.y, 0, Load.width, Load.height, 0);
                 sr.end(); }
                if(gs == gs.Edit){
-                  
+                   
                    editor.render(sb,sr,camera);
-               
+                  
+                   if(editor.main){
+                      while(!editor.ready){
+                       editor.getMapName();
+                       changeState();
+                       Gdx.input.setInputProcessor(this);
+                       setupCamera();
+                       editor.ready = true;
+                      }
+                      editor.dispose();
+                   }
+                   
                }
-               if(gs == gs.Game){
+               if(gs == gs.Game ){
                    sb.begin();
                    sr.begin();
-                   mg.render(sb,sr,camera);
+                   mg.render(sb,sr,bf);
                    sb.end();
                    sr.end();
                }
                
+               sb.begin();
+               bf.setColor(Color.BLACK);
+                bf.draw(sb, Integer.toString(Gdx.graphics.getFramesPerSecond()), camera.position.x -400 , camera.position.y -200);
+              if(mg != null)  {
+                bf.draw(sb, Integer.toString(mg.gem.gold), camera.position.x -390 , camera.position.y -100);}
                 
+                sb.end(); 
 		
 	}
 @Override
@@ -137,7 +155,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
         if(Load.contains(v3.x, v3.y)){
             
           LoadMap();   //later on change to accpet filename
-        
+          LoadMapdata();
         }
            
        
@@ -185,7 +203,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
            int temps = Integer.parseInt(q.poll());
            editor = new Editor(temph,tempw,temps,camera,ass);
            Gdx.input.setInputProcessor(editor);
-           gs = gs.Edit;
+           gs = GameState.Edit;
            
           
         }
@@ -225,6 +243,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
        ass.load("road.png",Texture.class);
        ass.load("town.png",Texture.class); 
        ass.load("unit1.png",Texture.class);
+       ass.load("dead.png", Texture.class);
        ass.finishLoading();
            }
     private void getmapsize() {
@@ -233,21 +252,17 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
          Gdx.input.getTextInput(this, "select map height", "32", "");
          Gdx.input.getTextInput(this, "select tile size", "32", "");  }
     public void LoadMap() {
+    
           try {System.out.println("trying");
          FileInputStream fileIn = new FileInputStream("maps/ex.map");
          ObjectInputStream in = new ObjectInputStream(fileIn);
                map m = new map();
                m = (map) in.readObject();
-              
-                                    ////for editor mode
-               
-               
                mg = new MainGame(camera,ass, m);
                loadtiles(ass);
                mg.rebuildmap(m);
-               
                Gdx.input.setInputProcessor(mg);
-               gs = gs.Game;
+               gs = GameState.Game;
               
                
          in.close();
@@ -261,5 +276,37 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
         
       } }
 
+    private void LoadMapdata() {
+       try {System.out.println("trying");
+         FileInputStream fileIn = new FileInputStream("maps/ex.dat");
+         ObjectInputStream in = new ObjectInputStream(fileIn);
+               GameEntityManager gem = new GameEntityManager();
+               gem = (GameEntityManager) in.readObject();
+               mg.putMapData(gem);
+             //  mg.gem.setEntitys(gem.entitys);
+             //  for(GameEntity e : gem.entitys){
+             //    e.setT(ass.get("unit1.png", Texture.class)); }
+                                    ////for editor mode
+               
+              
+               
+         in.close();
+         fileIn.close();
+      }catch(IOException ip) {
+         ip.printStackTrace();
+         
+      }catch(ClassNotFoundException c) {
+         System.out.println("data not found");
+         c.printStackTrace();
+        
+      }  }
 
+public void changeState(){
+   gs = GameState.MainMenu;
+ }
+
+    private void setupCamera() {
+            camera = new OrthographicCamera();
+            camera.setToOrtho(false, 800, 480);
+            camera.position.set(800/2f,480/2f, 0); }
 }

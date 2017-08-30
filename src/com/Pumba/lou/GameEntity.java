@@ -19,17 +19,35 @@ import java.io.Serializable;
  public class GameEntity implements Serializable{
       private int x;
       private int y;
+      
+      ///unit specific
+      private int hp ;
+      private int attack;
+     
+     
+      ////town specific
+    
+      private Boolean isEnemy ;
+      
+      private Boolean isDead = false;
+      private Boolean hasAttacked = false;
+      private Boolean hasCaptured = false;
+      private Boolean isMoved = false;
+      private Boolean isTurnDone = false;
+      
+      
       float dt;
       transient Texture t;
       transient Rectangle r;
-      private int stamina = 6;
+      private int stamina = 3;
       private Boolean waitMove = false;
       private Boolean isMoving = false;
+       Boolean North= false  ;
+       Boolean South= false  ;
+       Boolean East = false ;
+       Boolean West = false ;
      
-      public GameEntity(){}
-
-
-
+public GameEntity(){}
 public int getX(){
    return x;
 }
@@ -52,17 +70,25 @@ public void move(float x,float y,float dt){   ////////dt is deltatime
    this.dt = dt;
    if(dt > .1f){
      if(this.x != x || this.y != y){
-       if(this.x != x){
-          setX(this.x - 1);
+       if(this.x != x && East){
+          setX(this.x + 2);
           sethitboxX(getX());
-       }
-       if(this.y != y){
-         setY(this.y - 1);
+       } if(this.x != x && West){
+          setX(this.x - 2);
+          sethitboxX(getX());
+        }
+       if(this.y != y && North){
+          setY(this.y + 2);
+          sethitboxY(getY());
+       } if(this.y != y && South){
+          setY(this.y - 2);
           sethitboxY(getY());
        }
      }
    }
-   if(this.x == x && this.y == y){isMoving = false;}
+   if(this.x == x && this.y == y){//isMoving = false;
+       
+   }
   
 }
 public void setHitbox(int x,int y,int w,int h){
@@ -82,20 +108,90 @@ public int getStamina(){
   return stamina;
 }
 public Vector2 getLocation(){
-   Vector2 v2 = new Vector2();
+   Vector2 v2 = new Vector2(getX(),getY());
    return v2;
 }
 public void setMoving(){
 isMoving = true;
+
+}
+public void resetsetMovingandWaiting(){
+isMoving = false;    
 waitMove = false;
+
+
 }
-public void setWaiting(){
-  waitMove = true;
-}
+public void setIsMoving(Boolean b){
+   isMoving = b;
+ }
 public Boolean getWaiting(){
   return waitMove;
 }
+public void setWaiting(Boolean b){
+   waitMove = b;
+}
 public Boolean getMoving(){
   return isMoving;
+}
+public void newEntity(int x, int y){
+   setX(x);
+   setY(y);
+
+}
+public void setHp(int hp){
+  this.hp = hp;
+}
+public int getHp(){
+  return hp;
+}
+public void setAttack(int attack){
+ this.attack = attack;
+}
+public int getAttack(){
+ return attack;
+}
+public void getAttacked(int attack){
+    System.out.println(hp);
+ setHp(getHp()-attack);
+ if(hp <= 0){
+   isDead = true;
+ }
+ System.out.println(hp);
+}
+public void setDead(Boolean b  ){
+  isDead = b;
+}
+public Boolean getDead(){
+  return isDead;
+}
+public void setMoved(Boolean b  ){
+  isMoved = b;
+}
+public Boolean getMoved(){
+  return isMoved;
+}
+public void sethasAttacked(Boolean b  ){
+  hasAttacked = b;
+}
+public Boolean gethasAttacked(){
+  return hasAttacked;
+}
+public void sethasCaptured(Boolean b  ){
+  hasCaptured = b;
+}
+public Boolean gethasCaptured(){
+  return hasCaptured;
+}
+public Boolean getisEnemy(){
+   return isEnemy;
+}
+public void setisEnemy(Boolean b){
+  isEnemy = b;
+}
+public Boolean getisTurnDone(){
+   return isTurnDone;
+}
+public void setisTurnDone(Boolean b){
+  isTurnDone = b;
 }
  }
