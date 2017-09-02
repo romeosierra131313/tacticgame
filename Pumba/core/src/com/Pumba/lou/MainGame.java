@@ -472,6 +472,7 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
         maplist.get(e.getLocation()).setOcuppied(true);
         e.setHp(10);
         e.setAttack(10);
+        if(e.getisEnemy()){e.setisEnemyTexture();}
         gem.addEntity(e);
        
      }  
