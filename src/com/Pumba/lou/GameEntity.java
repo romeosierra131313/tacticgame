@@ -37,6 +37,7 @@ import java.io.Serializable;
       
       
       float dt;
+      PixMap p;
       transient Texture t;
       transient Rectangle r;
       private int stamina = 3;
@@ -193,5 +194,11 @@ public Boolean getisTurnDone(){
 }
 public void setisTurnDone(Boolean b){
   isTurnDone = b;
+}
+public void setisEnemyTexture(){
+  p = new PixMap(Gdx.files.internal("town.png"));
+  p.setColor(FF0606);
+ 
+  //////////put pixmap edits here//////////
 }
  }
