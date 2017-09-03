@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Rectangle;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -42,7 +41,7 @@ public class map implements Serializable{
         
           if(tList.get(i).isSet == true){
               sb.begin();
-             
+              
               sb.draw(this.tList.get(i).t  , this.tList.get(i).x, this.tList.get(i).y);
                 
           sb.end();} else {}

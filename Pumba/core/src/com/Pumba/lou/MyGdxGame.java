@@ -12,9 +12,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import java.io.FileInputStream;
@@ -78,6 +78,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
             loadtiles(ass);
             
             
+
             	
 	}
 @Override
@@ -231,6 +232,10 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
    town =    ass.get("town.png", Texture.class);
      return town;
          }
+          if("tree1".equals(type)){
+   town =    ass.get("tree1.png", Texture.class);
+     return town;
+         }
      ////add more tiles here
      return grass;
    
@@ -244,6 +249,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
        ass.load("town.png",Texture.class); 
        ass.load("unit1.png",Texture.class);
        ass.load("dead.png", Texture.class);
+       ass.load("tree1.png",Texture.class);
        ass.finishLoading();
            }
     private void getmapsize() {

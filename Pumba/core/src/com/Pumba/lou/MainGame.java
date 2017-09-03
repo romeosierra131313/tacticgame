@@ -87,7 +87,6 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
      px.render(sb);
      gem.render(sb, sr,bf, camera,dt); 
     
-    
     if(actionUIisOpen){
      
       aui.render(sb, sr,bf, camera);
@@ -102,16 +101,27 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
        if(m.getTile(i).type.compareTo("null") == 0 ){}
          else{ 
            sb.draw(ass.get(m.getTile(i).type + ".png"  ,Texture.class) , m.tList.get(i).x, m.tList.get(i).y);
+          }
+       } 
+      
+       for(int i = 0; i < m.tList.size() ; i++){
+       if(m.getTile(i).type.compareTo("null") == 0 ){}
+         else{ 
              if(m.getTile(i).type.compareTo("grass") == 0){
-                 sb.setColor(Color.GREEN);
+                 if(m.getTile(i).gethasDecorations() != 0){
+                   sb.draw(tree, m.tList.get(i).getDecorX(),  m.tList.get(i).getDecorY());
+                     if(m.getTile(i).gethasDecorations() >= 2){
+                       sb.draw(tree, m.tList.get(i).getDecorX1(),  m.tList.get(i).getDecorY1());
+                     }
                  
-                 sb.draw(tree, m.tList.get(i).x,  m.tList.get(i).y);
-                  sb.setColor(Color.WHITE);
+                 
+                 } 
              }
        }
       
        
-       }   }
+       } 
+      }
 
 @Override
   public boolean keyDown(int i) {
@@ -490,7 +500,17 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
                       temp.isSet =true;
                       
                   }
-               
+               temp.sethasDecorations(m.getTile(i).gethasDecorations());
+               if(m.getTile(i).gethasDecorations()==1){
+                 temp.setDecorX(m.getTile(i).getDecorX());
+                 temp.setDecorY(m.getTile(i).getDecorY());
+                 temp.setDecorSize(m.getTile(i).getDecorSize());
+               }
+               if(m.getTile(i).gethasDecorations()==2){
+                 temp.setDecorX1(m.getTile(i).getDecorX1());
+                 temp.setDecorY1(m.getTile(i).getDecorY1());
+                 temp.setDecorSize1(m.getTile(i).getDecorSize1());
+               }
               
               maplist.put(v2, temp);
               m.tList.remove(i);
