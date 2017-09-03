@@ -9,6 +9,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -30,6 +31,7 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
      UnitFactory uf;
      GameEntityManager gem;
      PathFinding pf;
+     PixmapEditor px;
      float dt;
      float cameradt;
      Rectangle rt;
@@ -40,12 +42,13 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
      Boolean captureSelected = false;
      Boolean waitSelected = false;
      HashMap<Vector2,Tile> maplist;
+     HashMap<Vector2,GameEntity> townlist;
      Vector3 v3 = new Vector3();
      Vector2 v2 = new Vector2();
      Vector2 cameracentre = new Vector2();
      
      int movecounter;
-     
+      Texture tree;
     
     public MainGame(OrthographicCamera camera,AssetManager ass,map m){
      this.m = m;
@@ -55,11 +58,14 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
      camera.setToOrtho(false, 800, 480);
       
       maplist = new HashMap();
+      townlist = new HashMap();
       aui = new actionUI();
       uf = new UnitFactory(ass);
       pf = new PathFinding(maplist);
       gem = new  GameEntityManager();
-        
+      px = new PixmapEditor(ass);
+      tree = ass.get("tree1.png", Texture.class);
+       
     }
     
   public void render(SpriteBatch sb,ShapeRenderer sr,BitmapFont bf){
@@ -76,9 +82,11 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
       movecharacters();
       movecamera();
      m.render(sb, sr, camera);
-     drawgrid(sb, sr,bf,ass);
+     rendermap(sb, sr,bf,ass);
      pf.rendermoveable(sb, sr, camera);
+     px.render(sb);
      gem.render(sb, sr,bf, camera,dt); 
+    
     
     if(actionUIisOpen){
      
@@ -88,19 +96,28 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
     
     
   }  
-      private void drawgrid(SpriteBatch sb,ShapeRenderer sr,BitmapFont bf,AssetManager ass) {
+      private void rendermap(SpriteBatch sb,ShapeRenderer sr,BitmapFont bf,AssetManager ass) {
           
        for(int i = 0; i < m.tList.size() ; i++){
        if(m.getTile(i).type.compareTo("null") == 0 ){}
-         else{ sb.draw(ass.get(m.getTile(i).type + ".png"  ,Texture.class) 
-         , m.tList.get(i).x, m.tList.get(i).y);}
+         else{ 
+           sb.draw(ass.get(m.getTile(i).type + ".png"  ,Texture.class) , m.tList.get(i).x, m.tList.get(i).y);
+             if(m.getTile(i).type.compareTo("grass") == 0){
+                 sb.setColor(Color.GREEN);
+                 
+                 sb.draw(tree, m.tList.get(i).x,  m.tList.get(i).y);
+                  sb.setColor(Color.WHITE);
+             }
+       }
       
        
        }   }
 
 @Override
   public boolean keyDown(int i) {
-        
+         if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)){
+          tree = px.dosomething();
+         } 
        return true; }
 @Override
   public boolean keyUp(int i) {
@@ -351,17 +368,23 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
              }
 
     private void attack(Vector3 v3) {
+                  int hasAttacked = 3;
                   pf.neighbours.clear();
                 pf.getNeighbor(pf.maplist.get(gem.getWaiting().getLocation()));
                  System.out.println("attacking");
                  if(!gem.getWaiting().gethasAttacked()){
                      System.out.println("has not attacked");
+                  if(whichEntity(v3) ==null){
+                      System.out.println("nobody there"); 
+                      hasAttacked = 0;
+                  }
                   if(whichEntity(v3) !=null){
                       System.out.println("whichenitity is there");
                        for(Tile til : pf.neighbours){
                           System.out.println(til.getX() + "+a"+ til.getY());
                        if(til.r.contains(v3.x,v3.y)){
                               System.out.println("dmg");
+                              hasAttacked = 1;
                               whichEntity(v3).getAttacked( gem.getWaiting().getAttack());
                         if( whichEntity(v3).getDead()){
                               whichEntity(v3).setT(ass.get("dead.png", Texture.class));
@@ -371,10 +394,13 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
                   } 
                  }
                 }
+                  if(hasAttacked == 1){
+                        gem.getWaiting().sethasAttacked(true);
+                  }
                   aui.actionUIitems.clear();
+                  openactionUI(gem.getWaiting());
                  
-                  gem.getWaiting().sethasAttacked(true);
-                   openactionUI(gem.getWaiting());
+                 
                  
                   
                   }  
@@ -383,6 +409,8 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
     private void resetGameState() {
           gem.giveGold();
           gem.resetisMoved();
+          resetMenu();
+          aui.actionUIitems.clear();
           
               for(GameEntity e : gem.entitys){
                  e.setMoved(Boolean.FALSE);
@@ -391,26 +419,35 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
                  e.setisTurnDone(Boolean.FALSE);
                  e.setIsMoving(Boolean.FALSE);
                  e.resetsetMovingandWaiting();
-              }  }
+              }
+               for(GameEntity t : gem.towns){
+                 
+                 t.setisTurnDone(Boolean.FALSE);
+                 t.resetsetMovingandWaiting();
+              }
+    
+    
+    }
 
     private void captureaTown(Vector3 v3) {
                 pf.neighbours.clear();
                 pf.getNeighbor(pf.maplist.get(gem.getWaiting().getLocation()));
                       int i = 3 ;
+                      Vector2 townlocation = new Vector2(); 
               for(GameEntity t : gem.towns){
-                   System.out.println("t");
                   if(t.r.contains(v3.x,v3.y)){
                      for(Tile til : pf.neighbours){
                           System.out.println(til.getX() + "+c"+ til.getY());
                        if(til.r.contains(v3.x,v3.y)){
-                            System.out.println("til2");
                            if(gem.getWaiting().getisEnemy()){
                              i = 1;
-                             System.out.println("enemy");
+                             townlocation.set(t.getLocation());
+                            
                           }
                           if(!gem.getWaiting().getisEnemy()){
                               i = 0;
-                              System.out.println("friendly");
+                              townlocation.set(t.getLocation());
+                             
                           }
                   aui.actionUIitems.clear();
                   
@@ -419,12 +456,18 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
                   }
               }  
                  
-                  if(i !=3){
-                  gem.getWaiting().sethasCaptured(true);
-                   System.out.println("fsety");
+                 if(i == 0){
+                      gem.getWaiting().sethasCaptured(true);
+                      openactionUI(gem.getWaiting());
+                     townlist.get(townlocation).setisEnemy(Boolean.FALSE);
+                     System.out.println("friendly");
+                 }
+                 if(i == 1){
+                    gem.getWaiting().sethasCaptured(true);
                    openactionUI(gem.getWaiting());
-                   return;
-                  }
+                     townlist.get(townlocation).setisEnemy(Boolean.TRUE);
+                     System.out.println("enemy");
+                 }
                
                   
     }
@@ -483,6 +526,7 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
         e.setHp(10);
         e.setAttack(1);
         gem.addtown(e);
+        townlist.put(e.getLocation(), e);
        
      }cameracentre.set(gem.entitys.get(0).getLocation());
     
