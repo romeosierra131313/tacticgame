@@ -97,12 +97,7 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
       
        
        }   }
-  public void setMap(map m){
-    this.m = m;
-   }  
-  public map getMap(){
-    return m;
-  }
+
 @Override
   public boolean keyDown(int i) {
         
@@ -116,7 +111,6 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
 @Override
   public boolean touchDown(int i, int i1, int i2, int i3) {
        v3 = unproject(Gdx.input.getX(),Gdx.input.getY());
-        System.out.println("v3 - "+v3);
         shouldOpenMenu(v3);
       if(i3 == 1){
            resetGameState();
@@ -186,6 +180,9 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
        }
     }      return null;
     }
+     
+     ///////////////ACTION UI /////////////////////
+     
     public void openactionUI(GameEntity e){
               int place = 1;
               System.out.println(e.getLocation());
@@ -423,6 +420,12 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
     }
     
     ///////maploading///////////
+  public void setMap(map m){
+    this.m = m;
+   }  
+  public map getMap(){
+    return m;
+  }
     public void rebuildmap(map m) {
            
            for(int i = 0 ; i < m.tList.size();i++){
@@ -489,7 +492,15 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
     }  
 
     private void shouldOpenMenu(Vector3 v3) {
-              if(!actionUIisOpen && gem.getWaiting() == null){
+          if(!actionUIisOpen && && gem.getWaiting() == null){
+             if(gem.townlist.get(new Vector2(v3.x,v3.y)) != null){
+               openTownOptions(gem.townlist.get(new Vector2(v3.x,v3.y)));
+                  return;
+             }
+               
+          }
+          
+          if(!actionUIisOpen && gem.getWaiting() == null){
             if(whichEntity(v3) != null && gem.getWaiting() == null){
                if(!whichEntity(v3).getisTurnDone()){
                 openmenu(v3);
@@ -503,4 +514,8 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
             }
         
         }}
+  private void openTownOptions(GameEntity t){
+       // uf.newTownMenu(t.x,t.y);
+   
+  }
 }
