@@ -27,10 +27,10 @@ public class actionUIitem {
     public actionUIitem(int place,int x,int y,String s){
         this.s = s;
     r = new Rectangle();
-    r.set(x, (y+ (place*32)),( Gdx.graphics.getWidth()/10)*2, Gdx.graphics.getHeight()/22);
+    r.set(x, (y+ (place*128)),( Gdx.graphics.getWidth()/10)*2, Gdx.graphics.getHeight()/22);
     rcentre = new Vector2();
     rcentre = r.getCenter(rcentre);
-    
+   
    
     
     
@@ -40,7 +40,7 @@ public class actionUIitem {
        sr.setColor(Color.PINK);
        sr.box(r.x, r.y, 0, r.width, r.height, 0);
         bf.setColor(Color.BLACK);
-      
+       
         bf.getData().setLineHeight(Gdx.graphics.getHeight()/10);
        bf.draw(sb, s, rcentre.x, rcentre.y);
     }

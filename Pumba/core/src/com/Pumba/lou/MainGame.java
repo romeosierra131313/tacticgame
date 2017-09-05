@@ -9,7 +9,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -19,8 +18,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -37,16 +34,19 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
      Rectangle rt;
      actionUI aui;
      Boolean actionUIisOpen = false;
+     Boolean townUIisOpen = false;
      Boolean moveSelected = false;
      Boolean attackSelected = false;
      Boolean captureSelected = false;
      Boolean waitSelected = false;
+     Boolean unitBeingBought = false;
+     String unit = "null";
      HashMap<Vector2,Tile> maplist;
      HashMap<Vector2,GameEntity> townlist;
      Vector3 v3 = new Vector3();
      Vector2 v2 = new Vector2();
      Vector2 cameracentre = new Vector2();
-     
+     int close = 1;
      int movecounter;
       Texture tree;
     
@@ -56,6 +56,7 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
      this.camera = camera;
      rt = new Rectangle();
      camera.setToOrtho(false, 800, 480);
+     camera.zoom += 2f;
       
       maplist = new HashMap();
       townlist = new HashMap();
@@ -83,11 +84,11 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
       movecamera();
      m.render(sb, sr, camera);
      rendermap(sb, sr,bf,ass);
-     pf.rendermoveable(sb, sr, camera);
+     pf.render(sb, sr, camera);
      px.render(sb);
      gem.render(sb, sr,bf, camera,dt); 
     
-    if(actionUIisOpen){
+    if(actionUIisOpen || townUIisOpen){
      
       aui.render(sb, sr,bf, camera);
     }
@@ -138,44 +139,26 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
 @Override
   public boolean touchDown(int i, int i1, int i2, int i3) {
        v3 = unproject(Gdx.input.getX(),Gdx.input.getY());
-        System.out.println("v3 - "+v3);
+      
         shouldOpenMenu(v3);
       if(i3 == 1){
            resetGameState();
         }
-         if(moveSelected && !gem.getWaiting().getMoved() ){
-               setmovement(v3);
-                System.out.println("move");
-               resetMenu();
-               }
-            if(attackSelected && !gem.getWaiting().gethasAttacked()){
-               attack(v3);
-                 System.out.println("attack");
-               resetMenu();}
-            if(captureSelected && !gem.getWaiting().gethasCaptured() ){
-               captureaTown(v3);
-                 System.out.println("capture");
-               resetMenu();
-               } 
-            if(waitSelected && gem.getWaiting().getisTurnDone() ){
-             
-             waits();
-               resetMenu();
-               }
-       
-       
-
-        if(gem.getWaiting() !=null){
-           
-            
-          }
-        if( actionUIisOpen){
+        doAction(v3);
+      if(unitBeingBought){
+            buyAunit(v3);
+                     }
+      if( actionUIisOpen){
                 getchoice();
                      }
+      if(townUIisOpen){
+                getchoice();
+      }
+        
                return true; }
 @Override
   public boolean touchUp(int i, int i1, int i2, int i3) {
-       return true; }
+       return false; }
 @Override
   public boolean touchDragged(int i, int i1, int i2) {
       return true; }
@@ -203,22 +186,74 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
        return null;
     }
     public GameEntity whichEntity(Vector3 v3) {
+       for (GameEntity t : gem.towns){
+           if(t.r.contains(v3.x, v3.y)){
+          return t;
+       }
+       }
        for (GameEntity e : gem.entitys){
            if(e.r.contains(v3.x, v3.y)){
           return e;
        }
-    }      return null;
     }
+       System.out.println("null"); 
+       return null;
+    }
+///////////////////IN GAME MENU THINGS//////////////////////////   
+    private void shouldOpenMenu(Vector3 v3) {
+           if(!actionUIisOpen || !townUIisOpen){
+            if(whichEntity(v3) != null ){ 
+                 if(whichEntity(v3).getisTown()){
+                   if(!whichEntity(v3).getisTurnDone()){
+                      if(gem.getWaitingEntity() == null){
+                         if(gem.getWaitingTown() == null){
+                      close = 1;
+                      whichEntity(v3).setWaiting(Boolean.TRUE);
+                      openTownUI(whichEntity(v3));
+                      pf.neighbours.clear();
+                      pf.getNeighbor(pf.maplist.get(whichTile(v3)));
+                      
+                       System.out.println("townui");
+                      }
+                   }
+                 }
+                return;
+            }
+                 if(gem.getWaitingEntity() == null && gem.getWaitingTown() == null){
+                         if(!whichEntity(v3).getisTown() && !whichEntity(v3).getisTurnDone()){
+                              System.out.println("actioui");
+                openmenu(v3);
+               }
+              
+            }
+            if(!whichEntity(v3).getisTown() && whichEntity(v3).getisTurnDone()){
+              pf.reset();
+              pf.getpathable(whichEntity(v3));
+               System.out.println("turn is done");
+            }
+        
+        }
+     }
+  }
+    private void openmenu(Vector3 v3) {
+     aui.actionUIitems.clear();
+     System.out.println("opening a menu");
+              if( whichEntity(v3) != null && !whichEntity(v3).getisTown()){
+                whichEntity(v3).setWaiting(true);
+                pf.neighbours.clear();
+                pf.getNeighbor(pf.maplist.get(gem.getWaitingEntity().getLocation()));
+                openactionUI(gem.getWaitingEntity());
+                }
+             }   
     public void openactionUI(GameEntity e){
               int place = 1;
-              System.out.println(e.getLocation());
               cameracentre.set(e.getX(), e.getY());
               pf.reset();
               pf.neighbours.clear();
-              pf.getNeighbor(maplist.get(gem.getWaiting().getLocation()));
+              pf.getNeighbor(maplist.get(gem.getWaitingEntity().getLocation()));
               if(!e.getMoved()){
-              pf.getpathable(gem.getWaiting());
-              aui.addaction(uf.newMove(place,e.getX(), e.getY()));
+              pf.getpathable(gem.getWaitingEntity());
+              aui.addaction(uf.newUIitem(place,e.getX(), e.getY(),"move"));
               place++;
               actionUIisOpen = true;
               
@@ -227,12 +262,11 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
               for(Tile t : pf.neighbours){
                  for(GameEntity f : gem.towns){
                     if(f.getX() == t.getX() && f.getY() == t.getY()){
-                       aui.addaction(uf.newCapture(place, e.getX(), e.getY()));
-                        System.out.println("attacking");
-                       place++;
+                       aui.addaction(uf.newUIitem(place, e.getX(), e.getY(),"capture"));
+                       
                     } 
                  }
-               }
+               } place++;
               }
               int hasneighbour = 0;
          if(!e.gethasAttacked()){ 
@@ -246,14 +280,127 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
                                  }
                                 }
                      if(hasneighbour == 1){
-                         aui.addaction(uf.newAttack(place, e.getX(), e.getY()));
+                         aui.addaction(uf.newUIitem(place, e.getX(), e.getY(),"attack"));
                         place++;
                         actionUIisOpen = true;
                      }else{}
                                }
-            aui.addaction(uf.newWait(place, e.getX(), e.getY()));
+            aui.addaction(uf.newUIitem(place, e.getX(), e.getY(),"wait"));
             actionUIisOpen = true;
          }
+    public void openTownUI(GameEntity t){
+            pf.moveable.clear();
+            aui.actionUIitems.clear();
+            townUIisOpen = true;
+            int place = 1;
+                 aui.addaction(uf.newUIitem(place, t.getX(), t.getY(), "close"));
+                 place++;
+              cameracentre.set(t.getX(), t.getY());
+              if(gem.gold >= 50){
+                 aui.addaction(uf.newUIitem(place, t.getX(), t.getY(), "unit1"));
+                 place++;
+              }
+              if(gem.gold >= 150){
+                 aui.addaction(uf.newUIitem(place, t.getX(), t.getY(), "unit2"));
+                 place++;
+              }
+              if(gem.gold >= 250){
+                 aui.addaction(uf.newUIitem(place, t.getX(), t.getY(), "unit3"));
+                 place++;
+              }
+              
+    }
+    private void getchoice() {
+      if(actionUIisOpen){
+       for (actionUIitem e :  aui.actionUIitems){
+        if(e.r.contains(v3.x, v3.y)){
+                       actionUIisOpen = false;
+        if(e.s.compareTo("move") == 0){
+                       moveSelected = true; }
+        if(e.s.compareTo("attack") == 0){
+                       attackSelected = true;
+                      
+                        }
+        if(e.s.compareTo("capture") == 0){
+                        System.out.println("capture");
+                       captureSelected = true;
+                      
+                        }
+        if(e.s.compareTo("wait") == 0){
+                       waits();
+                        }
+                       }
+                      }
+                     }
+    if(townUIisOpen){
+           
+        for (actionUIitem e :  aui.actionUIitems){
+        if(e.r.contains(v3.x, v3.y)){
+                       actionUIisOpen = false;
+              if(e.s.compareTo("close") == 0){
+                           close = 0;
+                           System.out.println("close");
+                              }
+              if(e.s.compareTo("unit1") == 0){
+                           close = 2;
+                           unit = "unit1";
+                           unitBeingBought = true;
+                           System.out.println("1");
+                           
+                              }
+              if(e.s.compareTo("unit2") == 0){
+                           System.out.println("2");
+                            
+                              }
+              if(e.s.compareTo("unit3") == 0){
+                           System.out.println("3");
+                            
+                              }
+              if(e.s.compareTo("unit4") == 0){
+                     System.out.println("4");
+                        }
+                       }
+                      }
+        if(close == 0){
+          gem.getWaitingTown().setWaiting(Boolean.FALSE);
+          aui.actionUIitems.clear();
+          townUIisOpen = false;
+    
+        }
+        if(close == 2){
+          aui.actionUIitems.clear();
+          townUIisOpen = false;
+    
+        }
+    }
+  } 
+    private void buyAunit(Vector3 v3){
+           Vector2 unitlocation = new Vector2();            ///////to set occupied without cocurrent error
+           int unitsize = gem.entitys.size();
+             for(Tile t : pf.neighbours){
+                if(t.r.contains(new Vector2(v3.x,v3.y))){
+                 if(!t.getOccupied()){
+                   unitlocation.set(t.getX(), t.getY());
+                    gem.addEntity(uf.newUnit(unit, t.getX() ,t.getY(),gem.getWaitingTown().getisEnemy()) );
+          }        
+        }     
+      }     
+          if(gem.entitys.size() > unitsize){   ///////verify a unit was bought
+            pf.maplist.get(unitlocation).setOcuppied(Boolean.TRUE);
+            unit = "null";
+            gem.getWaitingTown().setisTurnDone(Boolean.TRUE);
+             gem.getWaitingTown().setWaiting(Boolean.FALSE);
+            unitBeingBought = false;
+            aui.actionUIitems.clear();
+            townUIisOpen = false;
+          }
+    }
+    private void resetMenu(){
+    
+     moveSelected = false;
+     attackSelected = false;
+     captureSelected = false;
+    }    
     private void movecharacters() {
      
       if(gem.getMoving() != null && pf.ready == true){ 
@@ -302,9 +449,9 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
                    cameracentre.set(whichTile(v3));
                    maplist.get(gem.getMoving().getLocation()).setOcuppied(true);
                    aui.actionUIitems.clear();
-                   gem.getWaiting().setMoved(true);
+                   gem.getWaitingEntity().setMoved(true);
                    gem.getMoving().setIsMoving(false);
-                   openactionUI(gem.getWaiting());
+                   openactionUI(gem.getWaitingEntity());
                    moveSelected = false;
              }
          }
@@ -324,65 +471,58 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
             if(camera.position.y - cameracentre.y < 0){
        camera.position.set(camera.position.x, camera.position.y+2, 0);}
     }}}
-    private void getchoice() {
-      for (actionUIitem e :  aui.actionUIitems){
-        if(e.r.contains(v3.x, v3.y)){
-                       actionUIisOpen = false;
-        if(e.s.compareTo("move") == 0){
-                       moveSelected = true; }
-        if(e.s.compareTo("Attack") == 0){
-                       attackSelected = true;
-                      
-                        }
-        if(e.s.compareTo("Capture") == 0){
-                       captureSelected = true;
-                      
-                        }
-        if(e.s.compareTo("Wait") == 0){
-                       waits();
-                        }
-                       }
-                    } 
-                   }
-    private void resetMenu(){
+/////////////////////ACTIONUI OPTIONS
+    private void doAction(Vector3 v3){
+           if(moveSelected && !gem.getWaitingEntity().getMoved() ){
+               setmovement(v3);
+                System.out.println("move");
+               resetMenu();
+               }
+            if(attackSelected && !gem.getWaitingEntity().gethasAttacked()){
+               attack(v3);
+                 System.out.println("attack");
+               resetMenu();}
+            if(captureSelected && !gem.getWaitingEntity().gethasCaptured() ){
+               captureaTown(whichEntity(v3));
+                 System.out.println("capture");
+               resetMenu();
+               } 
+            if(waitSelected && gem.getWaitingEntity().getisTurnDone() ){
+             
+             waits();
+               resetMenu();
+               }
+       
+       
+
+        if(gem.getWaitingEntity() !=null){
+           
+            
+          }
     
-     moveSelected = false;
-     attackSelected = false;
-     captureSelected = false;
     }
     private void setmovement(Vector3 v3) {
         System.out.println(v3);
                  
-                 Vector2 v2start = new Vector2(gem.getWaiting().getX(),gem.getWaiting().getY());   
+                 Vector2 v2start = new Vector2(gem.getWaitingEntity().getX(),gem.getWaitingEntity().getY());   
                  Vector2 end = new Vector2(whichTile(v3));
-                 pf.setPath(v2start,end,gem.getWaiting());
+                 pf.setPath(v2start,end,gem.getWaitingEntity());
                  if(pf.Path.size()==0){
                    actionUIisOpen = true;
                  }
                  
                  if(pf.Path.size()>0){
-                 gem.getWaiting().setMoving();
-                 maplist.get(gem.getWaiting().getLocation()).setOcuppied(false);
+                 gem.getWaitingEntity().setMoving();
+                 maplist.get(gem.getWaitingEntity().getLocation()).setOcuppied(false);
                  }
                  movecounter = 0;
                  }
-    private void openmenu(Vector3 v3) {
-     aui.actionUIitems.clear();
-     System.out.println("opening a menu");
-              if( whichEntity(v3) != null){
-                whichEntity(v3).setWaiting(true);
-                pf.neighbours.clear();
-                pf.getNeighbor(pf.maplist.get(gem.getWaiting().getLocation()));
-                openactionUI(gem.getWaiting());
-                }
-             }
-
     private void attack(Vector3 v3) {
                   int hasAttacked = 3;
                   pf.neighbours.clear();
-                pf.getNeighbor(pf.maplist.get(gem.getWaiting().getLocation()));
+                pf.getNeighbor(pf.maplist.get(gem.getWaitingEntity().getLocation()));
                  System.out.println("attacking");
-                 if(!gem.getWaiting().gethasAttacked()){
+                 if(!gem.getWaitingEntity().gethasAttacked()){
                      System.out.println("has not attacked");
                   if(whichEntity(v3) ==null){
                       System.out.println("nobody there"); 
@@ -395,7 +535,7 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
                        if(til.r.contains(v3.x,v3.y)){
                               System.out.println("dmg");
                               hasAttacked = 1;
-                              whichEntity(v3).getAttacked( gem.getWaiting().getAttack());
+                              whichEntity(v3).getAttacked( gem.getWaitingEntity().getAttack());
                         if( whichEntity(v3).getDead()){
                               whichEntity(v3).setT(ass.get("dead.png", Texture.class));
                               gem.entitysDead.add(whichEntity(v3));
@@ -405,17 +545,58 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
                  }
                 }
                   if(hasAttacked == 1){
-                        gem.getWaiting().sethasAttacked(true);
+                        gem.getWaitingEntity().sethasAttacked(true);
                   }
                   aui.actionUIitems.clear();
-                  openactionUI(gem.getWaiting());
+                  openactionUI(gem.getWaitingEntity());
                  
                  
                  
                   
                   }  
                     }
-
+    private void waits() {
+                   
+                       gem.getWaitingEntity().setisTurnDone(Boolean.TRUE);
+                       gem.getWaitingEntity().setWaiting(Boolean.FALSE);
+                                     
+    }     
+    private void captureaTown(GameEntity town) {
+               
+                 System.out.println("town captured");
+                pf.neighbours.clear();
+                pf.getNeighbor(pf.maplist.get(gem.getWaitingEntity().getLocation()));
+                 int i = 3 ;
+                // is town a neighbour
+              for(Tile til : pf.neighbours){
+                 if(til.getX() == town.getX() && til.getY() == town.getY()){
+                     if(gem.getWaitingEntity().getisEnemy()){
+                             town.setisEnemy(Boolean.TRUE);
+                             i = 1;
+                          }
+                          if(!gem.getWaitingEntity().getisEnemy()){
+                              town.setisEnemy(Boolean.FALSE);
+                              i=0;
+                          }
+                 
+                 }
+              } 
+                 
+                 if(i == 0){
+                      gem.getWaitingEntity().sethasCaptured(true);
+                      aui.actionUIitems.clear();
+                      openactionUI(gem.getWaitingEntity());
+                     System.out.println("friendly");
+                 }
+                 if(i == 1){
+                    gem.getWaitingEntity().sethasCaptured(true);
+                    aui.actionUIitems.clear();
+                   openactionUI(gem.getWaitingEntity());
+                     System.out.println("enemy");
+                 }
+               
+                  
+    }
     private void resetGameState() {
           gem.giveGold();
           gem.resetisMoved();
@@ -439,48 +620,7 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
     
     }
 
-    private void captureaTown(Vector3 v3) {
-                pf.neighbours.clear();
-                pf.getNeighbor(pf.maplist.get(gem.getWaiting().getLocation()));
-                      int i = 3 ;
-                      Vector2 townlocation = new Vector2(); 
-              for(GameEntity t : gem.towns){
-                  if(t.r.contains(v3.x,v3.y)){
-                     for(Tile til : pf.neighbours){
-                          System.out.println(til.getX() + "+c"+ til.getY());
-                       if(til.r.contains(v3.x,v3.y)){
-                           if(gem.getWaiting().getisEnemy()){
-                             i = 1;
-                             townlocation.set(t.getLocation());
-                            
-                          }
-                          if(!gem.getWaiting().getisEnemy()){
-                              i = 0;
-                              townlocation.set(t.getLocation());
-                             
-                          }
-                  aui.actionUIitems.clear();
-                  
-                       }
-                     }
-                  }
-              }  
-                 
-                 if(i == 0){
-                      gem.getWaiting().sethasCaptured(true);
-                      openactionUI(gem.getWaiting());
-                     townlist.get(townlocation).setisEnemy(Boolean.FALSE);
-                     System.out.println("friendly");
-                 }
-                 if(i == 1){
-                    gem.getWaiting().sethasCaptured(true);
-                   openactionUI(gem.getWaiting());
-                     townlist.get(townlocation).setisEnemy(Boolean.TRUE);
-                     System.out.println("enemy");
-                 }
-               
-                  
-    }
+    
     
     ///////maploading///////////
     public void rebuildmap(map m) {
@@ -528,9 +668,9 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
     public void putMapData(GameEntityManager g){
      for(GameEntity e : g.entitys){
          
-        uf.newUnit("unit1", e.getX(), e.getY());
+      //  uf.newUnit("unit1", e.getX(), e.getY(),e.getisEnemy());
         e.setT(ass.get("unit1.png", Texture.class));
-        e.setHitbox(e.getX(), e.getY(),32   , 32);
+        e.setHitbox(e.getX(), e.getY(),128   , 128);
         camera.position.set(e.getX(), e.getY(), 0);
         maplist.get(e.getLocation()).setOcuppied(true);
         e.setHp(10);
@@ -539,9 +679,9 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
        
      }  
       for(GameEntity e : g.towns){
-        uf.newUnit("unit1", e.getX(), e.getY());
+        uf.newUnit("unit1", e.getX(), e.getY(),e.getisEnemy());
         e.setT(ass.get("town.png", Texture.class));
-        e.setHitbox(e.getX(), e.getY(),32   , 32);
+        e.setHitbox(e.getX(), e.getY(),128   , 128);
         maplist.get(e.getLocation()).setOcuppied(true);
         e.setHp(10);
         e.setAttack(1);
@@ -552,28 +692,8 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
     
     }
 
-    private void waits() {
-                   
-                       gem.getWaiting().setisTurnDone(Boolean.TRUE);
-                       gem.getWaiting().setWaiting(Boolean.FALSE);
-                                     
-    }  
 
-  private void shouldOpenMenu(Vector3 v3) {
-              if(!actionUIisOpen && gem.getWaiting() == null){
-            if(whichEntity(v3) != null && gem.getWaiting() == null){
-               if(!whichEntity(v3).getisTurnDone()){
-                openmenu(v3);
-               }
-              
-            }
-            if(whichEntity(v3) !=null && whichEntity(v3).getisTurnDone()){
-              pf.reset();
-              pf.getpathable(whichEntity(v3));
-               System.out.println("turn is done");
-            }
-        
-        }}
+
   public void setMap(map m){
     this.m = m;
    }  

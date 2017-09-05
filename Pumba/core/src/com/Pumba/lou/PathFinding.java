@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.HashMap;
+import com.Pumba.lou.Constants;
+import com.badlogic.gdx.graphics.Color;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -32,7 +34,7 @@ public class PathFinding {
        Vector2 yAxis = new Vector2();
         float easti;
         float westi;
-        
+        int tsize = Constants.TileWidth;
        Boolean ready;
        
        
@@ -40,15 +42,25 @@ public class PathFinding {
      public PathFinding(HashMap<Vector2,Tile> maplist){
         this.maplist = maplist;   
      }
-     public     void rendermoveable(SpriteBatch sb, ShapeRenderer sr, OrthographicCamera camera) {
+     public void render(SpriteBatch sb, ShapeRenderer sr, OrthographicCamera camera) {
           sr.set(ShapeRenderer.ShapeType.Line);
           sr.setColor(com.badlogic.gdx.graphics.Color.BLUE);
           if(moveable.size()>0){
              
           for(int i = 0;i < moveable.size()-1; i++){
              sr.box(moveable.get(i).x   ,moveable.get(i).y, 0,
-                      32, 32, 0);}
+                      tsize, tsize, 0);}
           }   
+         // sr.set(ShapeRenderer.ShapeType.Filled);
+          sr.setColor(Color.ORANGE);
+          if(neighbours.size() > 0){
+            for(Tile t: neighbours ){
+              if(!t.isOccupied){
+                sr.box(t.getX(), t.getY(), 0, tsize, tsize, 0);
+              }
+            }
+          }
+          sr.set(ShapeRenderer.ShapeType.Line);
          } 
      public  void getpathable(GameEntity e){
          
@@ -70,7 +82,7 @@ public class PathFinding {
     public void checknext(int stamina){
         if(stamina > -1){
           
-         temploca = temploca.set(temploca.x, temploca.y+32);
+         temploca = temploca.set(temploca.x, temploca.y+tsize);
           
          if(!moveable.contains(maplist.get(temploca)) && maplist.containsKey(temploca)  ){
             if(maplist.get(temploca).isSet && maplist.get(temploca).isPathable){
@@ -79,41 +91,41 @@ public class PathFinding {
           moveable.add(maplist.get(temploca));}}}
           
          
-          temploca = temploca.set(temploca.x, temploca.y-32);
+          temploca = temploca.set(temploca.x, temploca.y-tsize);
           
           
          // temploca.set(loca.x, loca.y-32);////setting south
-          temploca = temploca.set(temploca.x, temploca.y-32);
+          temploca = temploca.set(temploca.x, temploca.y-tsize);
           if(!moveable.contains(maplist.get(temploca))&& maplist.containsKey(temploca)){
               if(maplist.get(temploca).isSet && maplist.get(temploca).isPathable){
                    if( !maplist.get(temploca).isOccupied){
               checkNext.add(new Vector2(temploca.x,temploca.y));////adding south
            moveable.add(maplist.get(temploca));
              }}}
-          temploca = temploca.set(temploca.x, temploca.y+32);
+          temploca = temploca.set(temploca.x, temploca.y+tsize);
            
            
          // temploca.set(loca.x+32, loca.y);////setting east
-         temploca = temploca.set(temploca.x+32, temploca.y);
+         temploca = temploca.set(temploca.x+tsize, temploca.y);
          if(!moveable.contains(maplist.get(temploca))&& maplist.containsKey(temploca)){
              if(maplist.get(temploca).isSet && maplist.get(temploca).isPathable){
                   if( !maplist.get(temploca).isOccupied){
           checkNext.add(new Vector2(temploca.x,temploca.y));////adding east
            moveable.add(maplist.get(temploca)); 
              }}}
-          temploca = temploca.set(temploca.x-32, temploca.y);
+          temploca = temploca.set(temploca.x-tsize, temploca.y);
           
            
            
          // temploca.set(loca.x-32, loca.y);////setting west
-          temploca = temploca.set(temploca.x-32, temploca.y);
+          temploca = temploca.set(temploca.x-tsize, temploca.y);
           if(!moveable.contains(maplist.get(temploca))&& maplist.containsKey(temploca)){
               if(maplist.get(temploca).isSet && maplist.get(temploca).isPathable){
                    if( !maplist.get(temploca).isOccupied){
           checkNext.add(new Vector2(temploca.x,temploca.y));////adding west
            moveable.add(maplist.get(temploca));
             }}}
-          temploca = temploca.set(temploca.x+32, temploca.y);
+          temploca = temploca.set(temploca.x+tsize, temploca.y);
          
          
         }   
@@ -248,10 +260,10 @@ public Vector2 checkyAxis(Vector2 end,Vector2 north,Vector2 south){
 }
 public void getNeighbor(Tile t){
    
-        neighbours.add(maplist.get(new Vector2(t.getX()+32,t.getY())));
-        neighbours.add(maplist.get(new Vector2(t.getX()-32,t.getY())));
-        neighbours.add(maplist.get(new Vector2(t.getX(),t.getY()+32)));
-        neighbours.add(maplist.get(new Vector2(t.getX(),t.getY()-32)));
+        neighbours.add(maplist.get(new Vector2(t.getX()+tsize,t.getY())));
+        neighbours.add(maplist.get(new Vector2(t.getX()-tsize,t.getY())));
+        neighbours.add(maplist.get(new Vector2(t.getX(),t.getY()+tsize)));
+        neighbours.add(maplist.get(new Vector2(t.getX(),t.getY()-tsize)));
      }
 
 

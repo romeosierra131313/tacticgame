@@ -7,6 +7,7 @@ package com.Pumba.lou;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
+import java.util.ArrayList;
 
 /**
  *
@@ -18,19 +19,31 @@ public class UnitFactory {
      //Texture unit2;  
 
     public UnitFactory(AssetManager ass) {
-        this.ass = ass;
-         ass.load("unit1.png", Texture.class);
+         this.ass = ass;
+        // ass.load("unit1.png", Texture.class);
          ass.finishLoading();
     }
       
+       /////////////////UNITS///////////////////////////////////
        
-       
-       public GameEntity newUnit(String type,int x , int y){
-        GameEntity u= new GameEntity();
+       public GameEntity newUnit(String type,int x , int y,Boolean b){
+        GameEntity e= new GameEntity();
            if(type.equals("unit1")){
-         
-          u.setX(x);
-          u.setY(y);
+              e.newEntity(x,y);
+              e.setHitbox(x, y, 128, 128);
+              e.setHp(10);
+              e.setAttack(1);
+              e.setT(ass.get("unit1.png", Texture.class));
+              e.setisEnemy(b);
+           }
+           if(type.equals("town")){
+              e.newEntity(x,y);
+              e.setHp(20);
+              e.setAttack(1);
+              e.setT(ass.get("town.png", Texture.class));
+              e.setisEnemy(b);
+              e.setisTown(true);
+           }
          
          
           
@@ -42,26 +55,14 @@ public class UnitFactory {
        //  } 
           
        
-}return u;
+return e;
        }
-       
-       
+      
        
        /////////UI ELEMENTS//////////
-       public actionUIitem newMove(int place,int x,int y ){
-        actionUIitem move = new actionUIitem(place,x,y,"move");
-        return move;
+       public actionUIitem newUIitem(int place,int x,int y,String label ){
+        actionUIitem UIitem = new actionUIitem(place,x,y,label);
+        return UIitem;
        }
-       public actionUIitem newAttack(int place,int x,int y ){
-        actionUIitem move = new actionUIitem(place,x,y,"Attack");
-        return move;
-       }
-       public actionUIitem newWait(int place,int x,int y ){
-        actionUIitem wait = new actionUIitem(place,x,y,"Wait");
-        return wait;
-       }
-        public actionUIitem newCapture(int place,int x,int y ){
-        actionUIitem capture = new actionUIitem(place,x,y,"Capture");
-        return capture;
-       }
+       
 }

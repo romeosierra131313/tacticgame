@@ -13,6 +13,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
@@ -38,8 +39,9 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
      Rectangle mouse;
      int mousex;
      int mousey;
-      String typeSelected = "grass";
+     String typeSelected = "grass";
      map m;
+     UnitFactory uf;
      GameEntityManager gem;
      ArrayList<Tile> ui ;
      
@@ -51,12 +53,14 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
      mWidth = width;
      this.ass = ass;
      this.camera = camera;
+     camera.zoom += 2f;
      m = new map();
+     uf = new UnitFactory(ass);
      m.height = height;
      m.width = width;
-     m.tilewidth = size;
+     m.tilewidth = 128;
      
-     tSize = size;
+     tSize = 128;
      gem = new GameEntityManager();
      camera.setToOrtho(true, 1024, 720);
      //tList = new ArrayList<Tile>();
@@ -76,7 +80,7 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
           
          
      }
-     void render(SpriteBatch sb,ShapeRenderer sr,OrthographicCamera camera){
+     void render(SpriteBatch sb,ShapeRenderer sr,BitmapFont bf,OrthographicCamera camera){
          
          sr.setProjectionMatrix(camera.combined);
          movemouse();
@@ -87,7 +91,10 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
         // gem.render(sb, sr, camera, width);
          sr.setColor(Color.BLACK);
          drawgrid(sb, sr);
-         drawentitys(sb,sr);
+         sb.begin();
+         gem.rendertowns(sb, sr, bf, width);
+         gem.renderentitys(sb, sr, bf, width);
+         sb.end();
          drawui(sb,sr);
          sr.end();
          
@@ -109,10 +116,13 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
            typeSelected = "town";
          } 
         if (Gdx.input.isKeyPressed(Keys.NUM_5)){
-           typeSelected = "entity";
+           typeSelected = "towne";
          }
         if (Gdx.input.isKeyPressed(Keys.NUM_6)){
            typeSelected = "entitye";
+         }
+        if (Gdx.input.isKeyPressed(Keys.NUM_7)){
+           typeSelected = "entity";
          }
         if (Gdx.input.isKeyPressed(Keys.SPACE)){
            main = true;
@@ -202,21 +212,20 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
                setTileDecor( m.tList.get(h)); 
             }
             if(typeSelected == "town" ){
-                m.tList.get(h).setTile("town",getTexture(typeSelected,ass));
-                GameEntity e = new GameEntity();
-                e.newEntity(m.tList.get(h).getX(), m.tList.get(h).getY());
+                m.tList.get(h).setTile("grass",getTexture("grass",ass));
                 m.tList.get(h).setOcuppied(Boolean.TRUE);
-                e.setT(ass.get("town.png", Texture.class));
-                gem.addtown(e);
+                gem.addtown(uf.newUnit("town",m.tList.get(h).getX(), m.tList.get(h).getY(), Boolean.FALSE));
+                setTileDecor( m.tList.get(h)); 
+            }
+            if(typeSelected == "towne" ){
+                m.tList.get(h).setTile("grass",getTexture("grass",ass));
+                m.tList.get(h).setOcuppied(Boolean.TRUE);
+                gem.addtown(uf.newUnit("town",m.tList.get(h).getX(), m.tList.get(h).getY(), Boolean.TRUE));
                 setTileDecor( m.tList.get(h)); 
             }
             if(typeSelected == "entity" ){
-              GameEntity e = new GameEntity();
-              e.newEntity(m.tList.get(h).getX(), m.tList.get(h).getY());
-              m.tList.get(h).setOcuppied(Boolean.TRUE);
-              e.setT(ass.get("unit1.png", Texture.class));
-              e.setisEnemy(false);
-              gem.addEntity(e);
+               m.tList.get(h).setOcuppied(Boolean.TRUE);
+               gem.addEntity(uf.newUnit("unit1",m.tList.get(h).getX(), m.tList.get(h).getY(), Boolean.FALSE));
               
             }  
             if(typeSelected == "entitye" ){
@@ -261,14 +270,15 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
                m.tList.get(h).isPathable=true;
                setTileDecor( m.tList.get(h)); 
             }
-            if(typeSelected =="town" ){
-              GameEntity e = new GameEntity();
-              e.newEntity(m.tList.get(h).getX(), m.tList.get(h).getY());
-              m.tList.get(h).setOcuppied(Boolean.TRUE);
-              e.setT(ass.get("town.png", Texture.class));
-              gem.addtown(e);
-               m.tList.get(h).setTile("town",getTexture(typeSelected,ass));
-               m.tList.get(h).isSet = true;}
+         //   if(typeSelected =="town" ){
+         //     GameEntity e = new GameEntity();
+         //     e.newEntity(m.tList.get(h).getX(), m.tList.get(h).getY());
+         //     m.tList.get(h).setOcuppied(Boolean.TRUE);
+         //     e.setT(ass.get("town.png", Texture.class));
+         //     e.setisTown(true);
+         //     gem.addtown(e);
+         //      m.tList.get(h).setTile("grass",getTexture(typeSelected,ass));
+         //      m.tList.get(h).isSet = true;}
             
              m.tList.get(h).isSet = true;
              
@@ -401,13 +411,6 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
     public void canceled() {
         }
 
-    private void drawentitys(SpriteBatch sb, ShapeRenderer sr) {
-         sb.begin();
-       for(GameEntity e : gem.entitys){
-         sb.draw(ass.get("unit1.png", Texture.class ),e.getX(),e.getY());
-        
-       } sb.end();
-    }
      @Override
      public void LoadMap() {
     

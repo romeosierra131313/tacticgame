@@ -105,7 +105,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
                 sr.end(); }
                if(gs == gs.Edit){
                    
-                   editor.render(sb,sr,camera);
+                   editor.render(sb,sr,bf,camera);
                   
                    if(editor.main){
                       while(!editor.ready){
@@ -154,7 +154,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
            getmapsize(); 
         }
         if(Load.contains(v3.x, v3.y)){
-            
+            bf.getData().scale(3f);  
           LoadMap();   //later on change to accpet filename
           LoadMapdata();
         }
@@ -254,7 +254,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
            }
     private void getmapsize() {
         
-         Gdx.input.getTextInput(this, "select map width", "32", "");
+         Gdx.input.getTextInput(this, "select map width", "128", "");
          Gdx.input.getTextInput(this, "select map height", "32", "");
          Gdx.input.getTextInput(this, "select tile size", "32", "");  }
     public void LoadMap() {
