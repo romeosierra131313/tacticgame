@@ -107,6 +107,69 @@ public class PixmapEditor {
         
         return pixmaptex;
     }
+      public Texture  RedUnit1(GameEntity e){
+      pixie.setColor( 1, 1, 1, 1 );
+      
+   if(e.getType().compareTo("unit1") == 0){
+
+
+       
+     //  pixie = new Pixmap(Gdx.files.internal("unit1.png"));
+       for(int x = 0 ; x < pixie.getWidth(); x++){
+          for(int y =0 ; y < pixie.getHeight();y++){
+              if(pixie.getPixel(x, y) == 2139062271){
+               System.out.println(x+"+"+y);
+               System.out.println(pixie.getPixel(x, y));
+               pixie.drawPixel(x, y);
+               pixie.drawPixel(x, y, rgba8888(0.5f,0,0,1f));
+               ///agbr
+              }
+              if(pixie.getPixel(x, y) == -1){
+               System.out.println(x+"+"+y);
+               System.out.println(pixie.getPixel(x, y));
+               pixie.drawPixel(x, y);
+               pixie.drawPixel(x, y, rgba8888(1f,0,0,1f));
+               
+              }
+              if(pixie.getPixel(x, y) == -437918209){
+               System.out.println(x+"+"+y);
+               System.out.println(pixie.getPixel(x, y));
+               pixie.drawPixel(x, y);
+               pixie.drawPixel(x, y, rgba8888(0.9f,0,0,1f));
+               
+              }
+              if(pixie.getPixel(x, y) == -858993409){
+               System.out.println(x+"+"+y);
+               System.out.println(pixie.getPixel(x, y));
+               pixie.drawPixel(x, y);
+               pixie.drawPixel(x, y, rgba8888(0.8f,0,0,1f));
+               
+              }
+              if(pixie.getPixel(x, y) == -1296911617){
+               System.out.println(x+"+"+y);
+               System.out.println(pixie.getPixel(x, y));
+               pixie.drawPixel(x, y);
+               pixie.drawPixel(x, y, rgba8888(0.7f,0,0,1f));
+               
+              }
+              if(pixie.getPixel(x, y) == -1717986817){
+              System.out.println(x+"+"+y);
+              System.out.println(pixie.getPixel(x, y));
+              pixie.drawPixel(x, y);
+              pixie.drawPixel(x, y, rgba8888(0.6f,0,0,1f));
+               
+              }
+              }
+              
+          }
+       }
+   
+       
+      // pixie.fillCircle(64, 64, 10);
+        pixmaptex = new Texture( pixie );
+        
+        return pixmaptex;
+    }
   
 public void getPixelColor(Vector3 v3,GameEntity e){
   System.out.println(pixie.getPixel(Math.round(v3.x)-e.getX(), Math.round(v3.y)-e.getY()));
