@@ -127,7 +127,7 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
 @Override
   public boolean keyDown(int i) {
          if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)){
-          tree = px.dosomething();
+          camera.zoom -= 2f;
          } 
        return true; }
 @Override
@@ -139,7 +139,7 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
 @Override
   public boolean touchDown(int i, int i1, int i2, int i3) {
        v3 = unproject(Gdx.input.getX(),Gdx.input.getY());
-      
+         px.getPixelColor(v3,gem.getEntity(1));
         shouldOpenMenu(v3);
       if(i3 == 1){
            resetGameState();
@@ -668,24 +668,16 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
     public void putMapData(GameEntityManager g){
      for(GameEntity e : g.entitys){
          
-      //  uf.newUnit("unit1", e.getX(), e.getY(),e.getisEnemy());
-        e.setT(ass.get("unit1.png", Texture.class));
-        e.setHitbox(e.getX(), e.getY(),128   , 128);
-        camera.position.set(e.getX(), e.getY(), 0);
-        maplist.get(e.getLocation()).setOcuppied(true);
-        e.setHp(10);
-        e.setAttack(10);
-        gem.addEntity(e);
+       camera.position.set(e.getX(), e.getY(), 0);
+       maplist.get(e.getLocation()).setOcuppied(true);
+       gem.addEntity(uf.newUnit("unit1", e.getX(), e.getY(), e.getisEnemy()));
        
      }  
       for(GameEntity e : g.towns){
-        uf.newUnit("unit1", e.getX(), e.getY(),e.getisEnemy());
+        
         e.setT(ass.get("town.png", Texture.class));
-        e.setHitbox(e.getX(), e.getY(),128   , 128);
         maplist.get(e.getLocation()).setOcuppied(true);
-        e.setHp(10);
-        e.setAttack(1);
-        gem.addtown(e);
+        gem.addtown(uf.newUnit("town", e.getX(), e.getY(),e.getisEnemy()));
         townlist.put(e.getLocation(), e);
        
      }cameracentre.set(gem.entitys.get(0).getLocation());

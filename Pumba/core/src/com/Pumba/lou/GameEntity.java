@@ -22,6 +22,7 @@ import java.io.Serializable;
       //// common ///////
       private Boolean isEnemy ;
       private Boolean isTurnDone = false;
+      String type;
       private int hp ;
       private int attack;
       private int x;
@@ -201,6 +202,12 @@ public Boolean getisTown(){
 }
 public void setisTown(Boolean b){
   isTown = b;
+}
+public String getType(){
+   return type;
+}
+public void setType(String type){
+  this.type = type;
 }
 
  }

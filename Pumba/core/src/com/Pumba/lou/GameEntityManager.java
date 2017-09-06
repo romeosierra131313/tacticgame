@@ -123,17 +123,18 @@ public class GameEntityManager implements Serializable{
     }
 
     public void renderentitys(SpriteBatch sb, ShapeRenderer sr, BitmapFont bf, float dt) {
+        sb.setColor(Color.WHITE);
        for(GameEntity ge : entitys){
           if(ge.getisEnemy()){
         //   sr.setColor(com.badlogic.gdx.graphics.Color.RED);
-           sb.setColor(Color.RED);
+        //   sb.setColor(Color.RED);
         //   sr.box(ge.getX(), ge.getY()  , 0, 32, 32, 0);
            sb.draw(ge.t,ge.getX(),ge.getY());
            bf.draw(sb,Integer.toString(ge.getHp()),ge.getX()     , ge.getY());
              }
           if(!ge.getisEnemy()){
        //    sr.setColor(com.badlogic.gdx.graphics.Color.BLUE);
-           sb.setColor(Color.BLUE);
+       //    sb.setColor(Color.BLUE);
        //    sr.box(ge.getX(), ge.getY()  , 0, 32, 32, 0);
            sb.draw(ge.t,ge.getX(),ge.getY());
            bf.draw(sb,Integer.toString(ge.getHp()),ge.getX()     , ge.getY());

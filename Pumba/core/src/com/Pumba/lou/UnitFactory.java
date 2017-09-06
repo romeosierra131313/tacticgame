@@ -16,10 +16,12 @@ import java.util.ArrayList;
 public class UnitFactory {
        AssetManager ass;
        Texture unit1;
+       PixmapEditor px;
      //Texture unit2;  
 
     public UnitFactory(AssetManager ass) {
          this.ass = ass;
+         px = new PixmapEditor(ass);
         // ass.load("unit1.png", Texture.class);
          ass.finishLoading();
     }
@@ -33,15 +35,18 @@ public class UnitFactory {
               e.setHitbox(x, y, 128, 128);
               e.setHp(10);
               e.setAttack(1);
-              e.setT(ass.get("unit1.png", Texture.class));
+              e.setType(type);
               e.setisEnemy(b);
+              e.setT(px.BlueUnit1(e));
            }
            if(type.equals("town")){
               e.newEntity(x,y);
+              e.setHitbox(x,y,128   , 128);
               e.setHp(20);
               e.setAttack(1);
               e.setT(ass.get("town.png", Texture.class));
               e.setisEnemy(b);
+              e.setType(type);
               e.setisTown(true);
            }
          
