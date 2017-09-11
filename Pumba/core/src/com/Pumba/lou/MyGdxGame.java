@@ -46,7 +46,6 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
          Texture road;
          Texture water;
          Texture town;
-         
         
         
 	@Override
@@ -62,6 +61,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
             Load = new Rectangle();
             
             
+            
             Start.set((width/2) - (hitboxWidth ), height - (hitboxWidth*2), hitboxWidth*2,  hitboxWidth);
             Load.set((width/2) - (hitboxWidth ), height - (hitboxWidth*4), hitboxWidth*2,  hitboxWidth);
             sr = new ShapeRenderer();
@@ -75,6 +75,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
             
             q = new LinkedList<String>();
             ass = new AssetManager();
+            
             loadtiles(ass);
             
             
@@ -131,7 +132,8 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
                bf.setColor(Color.BLACK);
                 bf.draw(sb, Integer.toString(Gdx.graphics.getFramesPerSecond()), camera.position.x -400 , camera.position.y -200);
               if(mg != null)  {
-                bf.draw(sb, Integer.toString(mg.gem.gold), camera.position.x -390 , camera.position.y -100);}
+//                bf.draw(sb, Integer.toString(mg.gem.gold), camera.position.x -390 , camera.position.y -100);
+              }
                 
                 sb.end(); 
 		

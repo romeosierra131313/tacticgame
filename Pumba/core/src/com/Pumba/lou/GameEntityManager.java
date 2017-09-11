@@ -21,7 +21,6 @@ public class GameEntityManager implements Serializable{
     ArrayList<GameEntity> entitys;
     ArrayList<GameEntity> entitysDead;
     ArrayList<GameEntity> towns;
-    int gold = 0 ;
       public GameEntityManager(){
            entitys = new ArrayList<GameEntity>();
            entitysDead = new ArrayList<GameEntity>();
@@ -88,9 +87,9 @@ public class GameEntityManager implements Serializable{
             }
      
       }
-      public void giveGold(){
+      public void giveGold(Player p){
             for(GameEntity e : towns){
-               gold += 100;
+               p.increaseGold(100);
             }
       
       }
@@ -125,35 +124,16 @@ public class GameEntityManager implements Serializable{
     public void renderentitys(SpriteBatch sb, ShapeRenderer sr, BitmapFont bf, float dt) {
         sb.setColor(Color.WHITE);
        for(GameEntity ge : entitys){
-          if(ge.getisEnemy()){
-        //   sr.setColor(com.badlogic.gdx.graphics.Color.RED);
-        //   sb.setColor(Color.RED);
-        //   sr.box(ge.getX(), ge.getY()  , 0, 32, 32, 0);
-           sb.draw(ge.t,ge.getX(),ge.getY());
-           bf.draw(sb,Integer.toString(ge.getHp()),ge.getX()     , ge.getY());
-             }
-          if(!ge.getisEnemy()){
-       //    sr.setColor(com.badlogic.gdx.graphics.Color.BLUE);
-       //    sb.setColor(Color.BLUE);
-       //    sr.box(ge.getX(), ge.getY()  , 0, 32, 32, 0);
-           sb.draw(ge.t,ge.getX(),ge.getY());
-           bf.draw(sb,Integer.toString(ge.getHp()),ge.getX()     , ge.getY());
-             }
-          if(ge.getMoved()){
-       //    sr.setColor(com.badlogic.gdx.graphics.Color.PINK);
-        //   sr.box(ge.getX(), ge.getY()  , 0, 32, 32, 0);
-           sb.draw(ge.t,ge.getX(),ge.getY());
-           bf.draw(sb,Integer.toString(ge.getHp()),ge.getX()     , ge.getY());
-             }
-           
-         }
-          for(GameEntity d : entitysDead){
-             sb.setColor(Color.WHITE);
-            sb.draw(d.t,d.getX(),d.getY());
-           
+            ge.render(sb, sr, bf,dt);
+
+         for(GameEntity d : entitysDead){
+            sb.setColor(Color.WHITE);
+           sb.draw(d.t,d.getX(),d.getY());
+          
           }
         sb.setColor(Color.WHITE);
     }
+  }
 }
  
 

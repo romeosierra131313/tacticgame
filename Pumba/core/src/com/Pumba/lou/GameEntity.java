@@ -12,8 +12,12 @@ package com.Pumba.lou;
 
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import java.io.Serializable;
@@ -27,6 +31,17 @@ import java.io.Serializable;
       private int attack;
       private int x;
       private int y;
+      
+        public  Boolean up = true;
+        public  Boolean down = false;
+        public  Boolean left= false;
+        public  Boolean right= false;
+      transient  Animation walkright;
+      transient  Animation walkleft;
+      transient  Animation walkdown;
+      transient  Animation walkup;
+      transient  TextureRegion currentFrame;
+   
       
       ///unit specific
       
@@ -73,17 +88,17 @@ public void move(float x,float y,float dt){   ////////dt is deltatime
    this.dt = dt;
    if(dt > .1f){
      if(this.x != x || this.y != y){
-       if(this.x != x && East){
+       if(this.x != x && right){
           setX(this.x + 2);
           sethitboxX(getX());
-       } if(this.x != x && West){
+       } if(this.x != x && left){
           setX(this.x - 2);
           sethitboxX(getX());
         }
-       if(this.y != y && North){
+       if(this.y != y && up){
           setY(this.y + 2);
           sethitboxY(getY());
-       } if(this.y != y && South){
+       } if(this.y != y && down){
           setY(this.y - 2);
           sethitboxY(getY());
        }
@@ -209,5 +224,41 @@ public String getType(){
 public void setType(String type){
   this.type = type;
 }
+public void setAnimations(Animation right,Animation left,Animation up,Animation down){
+   walkright = right;
+   walkleft = left;
+   walkup = up;
+   walkdown = down;
+}
+ public void resetdirs(){
+                  up = false;
+                  down = false;
+                  left= false;
+                  right= false; }
+public void turnup(){
+            resetdirs();
+            up = true;
+            }
+public void turndown(){ // TURN DOWN FO WHAT!!!
+            resetdirs();
+            down = true;
+            }
+public void turnright(){
+            resetdirs();
+            right = true;}
+public void turnleft(){
+            resetdirs();
+            left = true;
+            }
+public void render(SpriteBatch sb,ShapeRenderer sr,BitmapFont bf,float time){
+                 bf.draw(sb, Integer.toString(hp), getX(), getY());
+                 if(up ){sb.draw(walkup.getKeyFrame(time,true)    , getX() , getY()); }
+                 if(down ){sb.draw(walkdown.getKeyFrame(time,true), getX() , getY()); }
+                 if(left ){sb.draw(walkleft.getKeyFrame(time,true), getX() , getY()); }
+                 if(right){sb.draw(walkright.getKeyFrame(time,true),getX() , getY()); }
+                 if(isDead ){sb.draw(t, getX() , getY()); }
+        
+       
+    }
 
  }

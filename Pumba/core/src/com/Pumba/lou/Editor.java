@@ -34,6 +34,7 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
      int mWidth;
      int tSize;
      Tile t;
+     float time;
      Boolean main = false;
      Boolean ready = false;
      Rectangle mouse;
@@ -81,7 +82,7 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
          
      }
      void render(SpriteBatch sb,ShapeRenderer sr,BitmapFont bf,OrthographicCamera camera){
-         
+         time += Gdx.graphics.getDeltaTime();
          sr.setProjectionMatrix(camera.combined);
          movemouse();
          
@@ -93,7 +94,7 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
          drawgrid(sb, sr);
          sb.begin();
          gem.rendertowns(sb, sr, bf, width);
-         gem.renderentitys(sb, sr, bf, width);
+         gem.renderentitys(sb, sr, bf, time);
          sb.end();
          drawui(sb,sr);
          sr.end();
@@ -123,6 +124,9 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
          }
         if (Gdx.input.isKeyPressed(Keys.NUM_7)){
            typeSelected = "entity";
+         }
+        if (Gdx.input.isKeyPressed(Keys.M)){
+           camera.zoom -= 2f;
          }
         if (Gdx.input.isKeyPressed(Keys.SPACE)){
            main = true;
@@ -214,27 +218,23 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
             if(typeSelected == "town" ){
                 m.tList.get(h).setTile("grass",getTexture("grass",ass));
                 m.tList.get(h).setOcuppied(Boolean.TRUE);
-                gem.addtown(uf.newUnit("town",m.tList.get(h).getX(), m.tList.get(h).getY(), Boolean.FALSE));
+                gem.addtown(uf.newUnit("town",m.tList.get(h).getX(), m.tList.get(h).getY(), Boolean.FALSE,Boolean.TRUE));
                 setTileDecor( m.tList.get(h)); 
             }
             if(typeSelected == "towne" ){
                 m.tList.get(h).setTile("grass",getTexture("grass",ass));
                 m.tList.get(h).setOcuppied(Boolean.TRUE);
-                gem.addtown(uf.newUnit("town",m.tList.get(h).getX(), m.tList.get(h).getY(), Boolean.TRUE));
+                gem.addtown(uf.newUnit("town",m.tList.get(h).getX(), m.tList.get(h).getY(), Boolean.TRUE,Boolean.TRUE));
                 setTileDecor( m.tList.get(h)); 
             }
             if(typeSelected == "entity" ){
                m.tList.get(h).setOcuppied(Boolean.TRUE);
-               gem.addEntity(uf.newUnit("unit1",m.tList.get(h).getX(), m.tList.get(h).getY(), Boolean.FALSE));
+               gem.addEntity(uf.newUnit("unit1",m.tList.get(h).getX(), m.tList.get(h).getY(), Boolean.FALSE,Boolean.TRUE));
               
             }  
             if(typeSelected == "entitye" ){
-              GameEntity e = new GameEntity();
-              e.newEntity(m.tList.get(h).getX(), m.tList.get(h).getY());
               m.tList.get(h).setOcuppied(Boolean.TRUE);
-              e.setT(ass.get("unit1.png", Texture.class));
-              e.setisEnemy(true);
-              gem.addEntity(e);
+               gem.addEntity(uf.newUnit("unit1",m.tList.get(h).getX(), m.tList.get(h).getY(), Boolean.TRUE,Boolean.TRUE));
             }
             
              m.tList.get(h).isSet = true;

@@ -44,7 +44,6 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
      Boolean captureSelected = false;
      Boolean waitSelected = false;
      Boolean unitBeingBought = false;
-     Boolean isMyTurn = true;
      String unit = "null";
      HashMap<Vector2,Tile> maplist;
      HashMap<Vector2,GameEntity> townlist;
@@ -61,9 +60,10 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
      this.ass = ass;
      this.camera = camera;
      p1 = new Player();
+     p1.increaseGold(400);
      p2 = new Player();
-     rt = new Rectangle(camera.position.x - Gdx.graphics.getWidth()/2,camera.position.y,500,300);
-     
+     p2.increaseGold(400);
+     rt = new Rectangle();
      camera.setToOrtho(false, 800, 480);
      camera.zoom += 2f;
       
@@ -91,19 +91,15 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
      if(cameradt >= 1f){
       cameradt = 0;
   } 
-      if(!isMyTurn){
-        System.out.println("not my turn");
-      }
 
+     
       movecharacters();
       movecamera();
      m.render(sb, sr, camera);
      rendermap(sb, sr,bf,ass);
      pf.render(sb, sr, camera);
      gem.render(sb, sr,bf, camera,dt); 
-     redergold(sb,bf,p1);
-     sr.box(rt.x, rt.y, 0, rt.width, rt.height, 0);
-     bf.draw(sb, "END TURN", rt.getCenter(v2).x - rt.width/2 , rt.getCenter(v2).y);
+           
      if(turncardisOpen){
          renderturncard(sb,sr,bf);
         }
@@ -157,15 +153,24 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
         return true; }
 @Override
   public boolean touchDown(int i, int i1, int i2, int i3) {
-        if(i3 ==1){
-            resetGameState();
+       v3 = unproject(Gdx.input.getX(),Gdx.input.getY());
+        shouldOpenMenu(v3);
+        if(turncardisOpen){
             return true;
+                     }
+      if(i3 == 1){
+           resetGameState();
         }
-         if(isMyTurn && Gdx.input.justTouched()){
-       v3 =   unproject(Gdx.input.getX(),Gdx.input.getY());
-       getUserInput();
-    }
-    
+        doAction(v3);
+      if(unitBeingBought){
+            buyAunit(v3);
+                     }
+      if( actionUIisOpen){
+                getchoice();
+                     }
+      if(townUIisOpen){
+                getchoice();
+      }
         
                return true; }
 @Override
@@ -221,7 +226,7 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
                          if(gem.getWaitingTown() == null){
                       close = 1;
                       whichEntity(v3).setWaiting(Boolean.TRUE);
-                      openTownUI(whichEntity(v3),p1);
+                      openTownUI(whichEntity(v3));
                       pf.neighbours.clear();
                       pf.getNeighbor(pf.maplist.get(whichTile(v3)));
                       
@@ -300,7 +305,7 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
             aui.addaction(uf.newUIitem(place, e.getX(), e.getY(),"wait"));
             actionUIisOpen = true;
          }
-    public void openTownUI(GameEntity t,Player p){
+    public void openTownUI(GameEntity t){
             pf.moveable.clear();
             aui.actionUIitems.clear();
             townUIisOpen = true;
@@ -308,19 +313,19 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
                  aui.addaction(uf.newUIitem(place, t.getX(), t.getY(), "close"));
                  place++;
               cameracentre.set(t.getX(), t.getY());
-              if(p.getGold() >= 50){
+              if(gem.gold >= 50){
                  aui.addaction(uf.newUIitem(place, t.getX(), t.getY(), "unit1"));
                  place++;
               }
-              if(p.getGold() >= 150){
+              if(gem.gold >= 150){
                  aui.addaction(uf.newUIitem(place, t.getX(), t.getY(), "unit2"));
                  place++;
               }
-              if(p.getGold() >= 250){
+              if(gem.gold >= 250){
                  aui.addaction(uf.newUIitem(place, t.getX(), t.getY(), "unit3"));
                  place++;
               }
-           
+              
     }
     private void getchoice() {
       if(actionUIisOpen){
@@ -469,17 +474,13 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
         if(cameradt > 0.1f){
         if(camera.position.x != cameracentre.x || camera.position.y != cameracentre.y ){
             if(camera.position.x - cameracentre.x > 0){
-       camera.position.set(camera.position.x-2, camera.position.y, 0);
-       rt.set((camera.position.x -1000),camera.position.y,500,300);}
+       camera.position.set(camera.position.x-2, camera.position.y, 0);}
             if(camera.position.y - cameracentre.y > 0){
-       camera.position.set(camera.position.x, camera.position.y-2, 0);
-         rt.set((camera.position.x-1000 ),camera.position.y,500,300);}
+       camera.position.set(camera.position.x, camera.position.y-2, 0);}
             if(camera.position.x - cameracentre.x < 0){
-       camera.position.set(camera.position.x+2, camera.position.y, 0);
-              rt.set((camera.position.x-1000 ),camera.position.y,500,300);}
+       camera.position.set(camera.position.x+2, camera.position.y, 0);}
             if(camera.position.y - cameracentre.y < 0){
-       camera.position.set(camera.position.x, camera.position.y+2, 0);
-              rt.set((camera.position.x-1000),camera.position.y,500,300);}
+       camera.position.set(camera.position.x, camera.position.y+2, 0);}
     }}}
 /////////////////////ACTIONUI OPTIONS
     private void doAction(Vector3 v3){
@@ -608,10 +609,11 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
                   
     }
     private void resetGameState() {
-          gem.giveGold(p1);
+          gem.giveGold();
+          gem.resetisMoved();
           resetMenu();
           aui.actionUIitems.clear();
-          isMyTurn = true;
+          
               for(GameEntity e : gem.entitys){
                  e.setMoved(Boolean.FALSE);
                  e.sethasAttacked(Boolean.FALSE);
@@ -705,35 +707,9 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
     private void renderturncard(SpriteBatch sb, ShapeRenderer sr, BitmapFont bf) {
        aui.actionUIitems.get(0).render(sb, sr, bf, camera);
        aui.actionUIitems.get(0).r.x+=10;
-         aui.actionUIitems.get(0).traveled+=10;
+         aui.actionUIitems.get(0).traveled++;
          if( aui.actionUIitems.get(0).traveled > 300){
            turncardisOpen = false;
            aui.actionUIitems.clear();
          } }
-
-    public void redergold(SpriteBatch sb, BitmapFont bf,Player p1) {
-        bf.draw(sb, Integer.toString(p1.getGold()), camera.position.x-200,camera.position.y);
-       }
-
-    private Boolean getUserInput() {
-      if(rt.contains(v3.x, v3.y)){
-          isMyTurn = false;
-        System.out.println("end");
-        return true;
-      }
-        shouldOpenMenu(v3);
-        doAction(v3);
-      if(unitBeingBought){
-            buyAunit(v3);
-            return true;
-                     }
-      if( actionUIisOpen){
-                getchoice();
-                return true;
-                     }
-      if(townUIisOpen){
-                getchoice();
-                return true;
-      }
-    return true;}
 }
