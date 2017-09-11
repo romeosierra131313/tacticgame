@@ -21,6 +21,14 @@ public class Tile implements Serializable {
       int rheight;
       int x;
       int y;
+      int hasdecorations;
+      int decorX;
+      int decorY;
+      int decorSize;
+      int decorX1;
+      int decorY1;
+      int decorSize1;
+      int distance;
       transient Texture t;
       Boolean isPathable=true;
       Boolean isSet = false;
@@ -66,5 +74,50 @@ public class Tile implements Serializable {
     }
     public void setr(int x, int y, int width,int height){
       r.set(x, y, width, height);
+    }
+    public int hasdecorations(){
+      return hasdecorations;
+    }
+    public int getDecorX(){
+      return decorX;
+    }
+    public void set decorX(int x){
+      decorX = x;
+    }
+    public int getDecorY(){
+      return decorY;
+    }
+    public void setDecorY(int y ){
+      decorY = y;
+    } 
+    public int decorSize(){
+      return decorSize;
+    }
+    public void setDecorSize(int size){
+      decorSize = size;
+    }
+    public int getDecorX1(){
+      return decorX1;
+    }
+    public void set decorX1(int x){
+      decorX1 = x;
+    }
+    public int getDecorY1(){
+      return decorY1;
+    }
+    public void setDecorY1(int y ){
+      decorY1 = y;
+    } 
+    public int decorSize1(){
+      return decorSize1;
+    }
+    public void setDecorSize1(int size){
+      decorSize1 = size;
+    }
+    public void getDistance(){
+      return distance;
+    }
+    public int setDistance(int distance){
+      distance = distance;
     }
 }
