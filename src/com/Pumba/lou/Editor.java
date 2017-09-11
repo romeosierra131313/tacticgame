@@ -187,13 +187,18 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
             if(typeSelected == "road" ){
                m.tList.get(h).setTile("road", getTexture(typeSelected,ass));
                m.tList.get(h).isPathable=true;
+               setTileDecor( m.tList.get(h)); 
             }
             if(typeSelected == "water" ){
                m.tList.get(h).setTile("water", getTexture(typeSelected,ass));
-               m.tList.get(h).isPathable=false; }
+               m.tList.get(h).isPathable=false; 
+               setTileDecor( m.tList.get(h)); 
+            }
             if(typeSelected =="grass" ){
                m.tList.get(h).setTile("grass",getTexture(typeSelected,ass));
-             m.tList.get(h).isPathable=true;}
+               m.tList.get(h).isPathable=true;
+               setTileDecor( m.tList.get(h)); 
+            }
             if(typeSelected == "town" ){
                 m.tList.get(h).setTile("town",getTexture(typeSelected,ass));
                 GameEntity e = new GameEntity();
@@ -201,6 +206,7 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
                 m.tList.get(h).setOcuppied(Boolean.TRUE);
                 e.setT(ass.get("town.png", Texture.class));
                 gem.addtown(e);
+                setTileDecor( m.tList.get(h)); 
             }
             if(typeSelected == "entity" ){
               GameEntity e = new GameEntity();
@@ -209,6 +215,7 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
               e.setT(ass.get("unit1.png", Texture.class));
               e.setisEnemy(false);
               gem.addEntity(e);
+              
             }  
             if(typeSelected == "entitye" ){
               GameEntity e = new GameEntity();
@@ -237,15 +244,21 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
             if(m.tList.get(h).r.contains(v3.x,v3.y)){
             if(typeSelected == "road" ){
                m.tList.get(h).setTile("road", getTexture(typeSelected,ass));
-                m.tList.get(h).isSet = true;}
+               m.tList.get(h).isSet = true;
+               setTileDecor( m.tList.get(h)); 
+            }
             if(typeSelected == "water" ){
                m.tList.get(h).setTile("water", getTexture(typeSelected,ass));
-                m.tList.get(h).isSet = true;
-                m.tList.get(h).isPathable=false;}
+               m.tList.get(h).isSet = true;
+               m.tList.get(h).isPathable=false;
+               setTileDecor( m.tList.get(h));  
+            }
             if(typeSelected =="grass" ){
                m.tList.get(h).setTile("grass",getTexture(typeSelected,ass));
                m.tList.get(h).isSet = true;
-             m.tList.get(h).isPathable=true;}
+               m.tList.get(h).isPathable=true;
+               setTileDecor( m.tList.get(h)); 
+            }
             if(typeSelected =="town" ){
               GameEntity e = new GameEntity();
               e.newEntity(m.tList.get(h).getX(), m.tList.get(h).getY());
@@ -253,9 +266,10 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
               e.setT(ass.get("town.png", Texture.class));
               gem.addtown(e);
                m.tList.get(h).setTile("town",getTexture(typeSelected,ass));
-                m.tList.get(h).isSet = true;}
+               m.tList.get(h).isSet = true;}
             
              m.tList.get(h).isSet = true;
+             
                System.out.println(h);
          
             }
@@ -485,4 +499,19 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
        sb.end();
       
     }
+   public void setTileDecor(Tile t ){
+      t.sethasDecorations(Math.Rand(2));
+        if(t.getHasDecorations() ==1){
+           t.setDecorX(Math.Rand(t.x,t.x+32));
+           t.setDecorX(Math.Rand(t.y,t.y +32));
+           t.setDecorSize(Math.Rand(1f));
+             
+        }
+         if(t.getHasDecorations() ==2){
+           t.setDecorX1(Math.Rand(t.x,t.x+32));
+           t.setDecorX1(Math.Rand(t.y,t.y +32));
+           t.setDecorSize1(Math.Rand(1f));
+             
+        }
+   }
 }
