@@ -24,8 +24,8 @@ public class PathFinding {
        ArrayList<Vector2> checkNext = new ArrayList<Vector2>();
        ArrayList<Tile> moveable = new  ArrayList<Tile>();
        ArrayList<Tile> Path = new  ArrayList<Tile>();
-       HashMap<Vector2,Tile> openlist;
-       HashMap<Vector2,Tile> closedlist;
+       ArrayList<Tile> openlist;
+       ArrayList<Tile> closedlist;
        HashMap<Vector2,Tile> maplist;
        Vector2 loca = new Vector2();//get e.x e.y
        Vector2 temploca = new Vector2();
@@ -35,12 +35,15 @@ public class PathFinding {
         float easti;
         float westi;
         int tsize = Constants.TileWidth;
+        int steps = 1;
        Boolean ready;
        
        
        
      public PathFinding(HashMap<Vector2,Tile> maplist){
-        this.maplist = maplist;   
+        this.maplist = maplist;  
+        openlist = new  ArrayList<Tile>();
+        closedlist = new  ArrayList<Tile>();
      }
      public void render(SpriteBatch sb, ShapeRenderer sr, OrthographicCamera camera) {
           sr.set(ShapeRenderer.ShapeType.Line);
@@ -142,72 +145,49 @@ public class PathFinding {
       
     }
     public void setPath(Vector2 start,Vector2 end ,GameEntity e){
-         int steps = 1;
-        openlist.add(start,maplist.get(new Vector2(start.x,start.y));
-           getNeighboursInOpenList(maplist.get(start));
-                 
-        while(!openlist.isEmpty()){
-            for(Tile t : openlist){       
-                   setDistanceToEnd(t,steps);
-                   setHeuristic(t);
-                   getNeighboursInOpenList(maplist.get(t));
-                   openlist.remove(maplist.get(new Vector2(t.x,t.y)));
-                   closedlist.add(maplist.get(new Vector2(t.x,t.y)));
+          System.out.println("setting path");
+         
+        openlist.add(maplist.get(start));
+        maplist.get(start).setParent(maplist.get(start));
+        getNeighborsInOpenList(maplist.get(start));
+         System.out.println(openlist.size());       
+        while(openlist.size() > 0){
+             System.out.println("while");
+            
+                   setDistanceToEnd(openlist.get(0),end);
+                   setHeuristic(openlist.get(0));
+                  getNeighborsInOpenList(openlist.get(0));
+                             
+              System.out.println("switching");
+                   closedlist.add(openlist.get(0));
+                   openlist.remove(openlist.get(0));
+               for(Tile t : closedlist){
+                       if(t.getDistance() == 0){openlist.clear();}
+                    System.out.println("distance:" +  t.getDistance() +"heuristic "+t.getHeuristic());
+                  }
                    steps++;
-                        if(t.getDistance == 0){
-                            openlist.clear();
-                        }
-                   }
+                       
+                 }
+                Tile current = maplist.get(end);
+                Path.add(maplist.get(end));
+                while(!Path.contains(maplist.get(start))) {
+                    Path.add(current.getParent());
+                    current = current.getParent();
+                }
+                for (Tile t : Path){
+                     System.out.println(t.getX() + "+"+ t.getY());
+                }
+               
+                ready = true;
+  
                } 
       
-           Path.add(end);
-               for(int i = 0; i < Path.getSize(); i++){
-                  if(Path.get(i).getParent() == start){
-                    i = Path.getSize+100;
-                  }
-                  Path.add(Path.get(i).getParent());
-               }
-       }
-                 
-            
-         
-         
-      if( !maplist.get(end).isOccupied){
-         Path.add(maplist.get(end));
-         neighbours.clear();
-         getNeighbor(maplist.get(end));
-          System.out.println("end set");
-          ready = true;
       
-      }
       
-          System.out.println("not set");
-     }
+
+      
     public void getPath(Vector2 start){
-        
-    //    if(diff.x != 0 || diff.y != 0){
-    //        
-    //        temploca.set(checkNext.get(0));
-    //        System.out.println("temploca:" + temploca);
-    //        System.out.println("checking:" + new Vector2(temploca.x+32, temploca.y)+"+"+new Vector2(temploca.x-32, temploca.y));
-    //       xAxis = checkxAxis(start,new Vector2(temploca.x+32, temploca.y),new Vector2(temploca.x-32, temploca.y));
-    //       if(xAxis != checkNext.get(0)){
-    //      Path.add(maplist.get(xAxis));
-    //      checkNext.add(0,new Vector2(xAxis));
-    //      // diff.set(Math.abs(diff.x-32),diff.y); 
-    //      // System.out.println("diff:" + diff);
-    //       }else{  
-    //       yAxis = checkyAxis(start,new Vector2(temploca.x, temploca.y+32),new Vector2(temploca.x, temploca.y-32));
-    //        if(yAxis != checkNext.get(0)){
-    //         Path.add(maplist.get(checkyAxis(start,new Vector2(temploca.x, temploca.y+32),new Vector2(temploca.x, temploca.y-32))));    
-    //          checkNext.add(0,checkyAxis(start,new Vector2(temploca.x, temploca.y+32),new Vector2(temploca.x, temploca.y-32))); 
-    //        }
-    //       }
-    //     
-    //      
-    //     
-    //     }
-//         checkNext.remove(1);
+    
     }
             
 public Vector2 checkxAxis(Vector2 end,Vector2 east,Vector2 west){
@@ -280,21 +260,27 @@ public void getNeighbor(Tile t){
         neighbours.add(maplist.get(new Vector2(t.getX(),t.getY()-tsize)));
      }
 public void setDistanceToEnd(Tile current,Vector2 end){
-        current.setDistance((Math.abs(current.getX() - end.x)) +(Math.abs(current.getX()-end.y)));
+        current.setDistance((Math.abs(current.getX() - Math.round(end.x))) +(Math.abs(current.getY()-Math.round(end.y))));
 
      }
 public void setHeuristic(Tile current){
-        current.setHeuristic(current.getDistance + 10*steps);
+        current.setHeuristic(current.getDistance() + 10*steps);
 }
-public void getNeighborInOpenList(Tile t){
-   
-        openList.add(maplist.get(new Vector2(t.getX()+tsize,t.getY())));
-                maplist.get(new Vector2(t.getX()+tsize,t.getY())).setParent(new Vector2(t.x,t.y));
-        openList.add(maplist.get(new Vector2(t.getX()-tsize,t.getY())));
-                maplist.get(new Vector2(t.getX()-tsize,t.getY())).setParent(new Vector2(t.x,t.y));
-        openList.add(maplist.get(new Vector2(t.getX(),t.getY()+tsize)));
-                maplist.get(new Vector2(t.getX(),t.getY()+tsize)).setParent(new Vector2(t.x,t.y));
-        openList.add(maplist.get(new Vector2(t.getX(),t.getY()-tsize)));
-                maplist.get(new Vector2(t.getX(),t.getY()-tsize)).setParent(new Vector2(t.x,t.y));
-     }
+public void getNeighborsInOpenList(Tile t){
+
+        System.out.println("nighbor");
+        if(moveable.contains(maplist.get(new Vector2(t.getX()+tsize,t.getY()))) && !closedlist.contains(maplist.get(new Vector2(t.getX()+tsize,t.getY())))){
+            openlist.add(maplist.get(new Vector2(t.getX()+tsize,t.getY())));
+            maplist.get(new Vector2(t.getX()+tsize,t.getY())).setParent(maplist.get(new Vector2(t.x,t.y)));}
+        if(moveable.contains(maplist.get(new Vector2(t.getX()-tsize,t.getY()))) && !closedlist.contains(maplist.get(new Vector2(t.getX()-tsize,t.getY())))){
+            openlist.add(maplist.get(new Vector2(t.getX()-tsize,t.getY())));
+            maplist.get(new Vector2(t.getX()-tsize,t.getY())).setParent(maplist.get(new Vector2(t.x,t.y)));}
+        if(moveable.contains(maplist.get(new Vector2(t.getX(),t.getY()+tsize))) && !closedlist.contains(maplist.get(new Vector2(t.getX(),t.getY()+tsize)))){
+            openlist.add(maplist.get(new Vector2(t.getX(),t.getY()+tsize)));
+            maplist.get(new Vector2(t.getX(),t.getY()+tsize)).setParent(maplist.get(new Vector2(t.x,t.y)));}
+        if(moveable.contains(maplist.get(new Vector2(t.getX(),t.getY()-tsize))) && !closedlist.contains(maplist.get(new Vector2(t.getX(),t.getY()-tsize)))){
+            openlist.add(maplist.get(new Vector2(t.getX(),t.getY()-tsize)));
+            maplist.get(new Vector2(t.getX(),t.getY()-tsize)).setParent(maplist.get(new Vector2(t.x,t.y)));}
+     
                     }
+}

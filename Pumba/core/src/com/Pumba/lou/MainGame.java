@@ -421,36 +421,41 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
       if(gem.getMoving() != null && pf.ready == true){ 
           aui.actionUIitems.clear();
           
-         if(pf.Path.get(movecounter).x > gem.getMoving().getX()){
+         if(pf.Path.get(pf.Path.size()-1).x > gem.getMoving().getX()){
                 gem.getMoving().turnright();
                 
                
          }
-          if(pf.Path.get(movecounter).x < gem.getMoving().getX()){ 
+          if(pf.Path.get(pf.Path.size()-1).x < gem.getMoving().getX()){ 
                 gem.getMoving().turnleft();
           }
-          if(pf.Path.get(movecounter).y > gem.getMoving().getY()){
+          if(pf.Path.get(pf.Path.size()-1).y > gem.getMoving().getY()){
                 gem.getMoving().turnup();
           } 
-           if(pf.Path.get(movecounter).y < gem.getMoving().getY()){
+           if(pf.Path.get(pf.Path.size()-1).y < gem.getMoving().getY()){
                 gem.getMoving().turndown();
            }
          
-         if( gem.getMoving().getX() == pf.Path.get(movecounter).x &&
-           gem.getMoving().getY() == pf.Path.get(movecounter).y){
-            
-           if(movecounter <=pf.Path.size()-2){ 
-           movecounter+=1;}
-       } 
-          
-       if( gem.getMoving().getX() != pf.Path.get(movecounter).x || gem.getMoving().getY() != pf.Path.get(movecounter).y){
-      
-      gem.getMoving().move(pf.Path.get(movecounter).x,pf.Path.get(movecounter).y, dt); 
-      
-      }
-       if( gem.getMoving().getX() == pf.Path.get(pf.Path.size()-1).x &&
+         if( gem.getMoving().getX() == pf.Path.get(pf.Path.size()-1).x &&
            gem.getMoving().getY() == pf.Path.get(pf.Path.size()-1).y){
-             if(pf.Path.size()!=0){
+              if(pf.Path.size()>=1){
+           pf.Path.remove(pf.Path.size()-1);}
+           movecounter+=1;
+       } 
+     if(pf.Path.size() > 1){     
+       if( gem.getMoving().getX() != pf.Path.get(pf.Path.size()-1).x || gem.getMoving().getY() != pf.Path.get(pf.Path.size()-1).y){
+      
+      gem.getMoving().move(pf.Path.get(pf.Path.size()-1).x,pf.Path.get(pf.Path.size()-1).y, dt); 
+      
+      }}
+     if(pf.Path.size() == 1){     
+       if( gem.getMoving().getX() != pf.Path.get(0).x || gem.getMoving().getY() != pf.Path.get(0).y){
+      
+      gem.getMoving().move(pf.Path.get(0).x,pf.Path.get(0).y, dt); 
+      
+      }}
+      
+             if(pf.Path.size()==0){
                    
                    cameracentre.set(whichTile(v3));
                    maplist.get(gem.getMoving().getLocation()).setOcuppied(true);
@@ -460,7 +465,7 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
                    openactionUI(gem.getWaitingEntity());
                    moveSelected = false;
              }
-         }
+         
       
        }
     }
@@ -512,7 +517,7 @@ public class MainGame extends MyGdxGame implements InputProcessor  {
     
     }
     private void setmovement(Vector3 v3) {
-        System.out.println(v3);
+       
                  
                  Vector2 v2start = new Vector2(gem.getWaitingEntity().getX(),gem.getWaitingEntity().getY());   
                  Vector2 end = new Vector2(whichTile(v3));

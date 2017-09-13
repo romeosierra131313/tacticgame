@@ -29,6 +29,8 @@ public class Tile implements Serializable {
       int decorY1;
       int decorSize1;
       int distance;
+      int heuristic;
+      Tile parent;
       transient Texture t;
       Boolean isPathable=true;
       Boolean isSet = false;
@@ -121,6 +123,18 @@ public class Tile implements Serializable {
       return distance;
     }
     public void setDistance(int distance){
-      distance = distance;
+      this.distance = distance;
+    }
+    public Tile getParent(){
+      return parent;
+    }
+    public void setParent(Tile t){
+      parent = t;
+    }
+    public int getHeuristic(){
+      return heuristic;
+    }
+    public void setHeuristic(int i){
+      heuristic = i;
     }
 }
