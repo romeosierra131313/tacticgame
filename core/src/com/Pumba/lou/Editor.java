@@ -49,7 +49,7 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
      m.height = height;
      m.width = width;
      m.tilewidth = size;
-     
+     ArrayList<String> types = new ArrayList<String>();
      tSize = size;
      
      camera.setToOrtho(true, 1024, 720);
@@ -270,5 +270,47 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
     @Override
     public void canceled() {
         }
+   public void getNeighbours(Vector2 v){
+       types.add(maplist.get(new Vector2(v.x + tSize,v.y + tSize)).getType);  ///NORTHEAST
+       types.add(maplist.get(new Vector2(v.x,v.y + tSize)).getType);    /////////NORTH
+       types.add(maplist.get(new Vector2(v.x - tSize,v.y + tSize)).getType);  ///NORTHWEST       
+       types.add(maplist.get(new Vector2(v.x - tSize,v.y)).getType);    /////////WEST
+       types.add(maplist.get(new Vector2(v.x - tSize,v.y - tSize)).getType);  ///SOUTHWEST  
+       types.add(maplist.get(new Vector2(v.x,v.y - tSize)).getType);    /////////SOUTH 
+       types.add(maplist.get(new Vector2(v.x + tSize,v.y - tSize)).getType);  ///SOUTHEAST 
+       types.add(maplist.get(new Vector2(v.x + tSize,v.y)).getType);    //////////EAST
+         
+     }
+    public void changeTile(Tile t){
+      //  GGG      WWW
+      //  GGG      WGG
+      //  GGG      WGG
+         String all;
+         for(int i =0 ; i < types.size() ;i++){   /////////Constructing one string to be compared
+            if(types.get(i).compareTo("grass")){
+              all.concat("G");
+            }
+            if(types.get(i).compareTo("water")){
+              all.concat("W");
+            }
+            if(types.get(i).compareTo("road")){
+              all.concat("G");
+            }
+            //if(types.get(i).compareTo("grass")){  ////// add more types here
+            //  all.concat("G");
+            //}
+         }
+         //////////analyze the string to find a matching set 
+         if(all.compareTo("GGGGGGGG")){
+            t.setTexture(ass.get("grass.png",Texture.class));
+         }
+         if(all.compareTo("WWWWWGGG")){
+            t.setTexture(ass.get("grasscornerlefttop.png",Texture.class));
+         }
+         if(all.compareTo("GGGWWWWW")){
+            t.setTexture(ass.get("grasscornerrighttop.png",Texture.class));
+         }
+         ////////////ADD MORE SENARIOS HERE///////////////////////////////////////
+    }
 
 }
