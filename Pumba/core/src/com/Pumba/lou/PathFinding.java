@@ -135,12 +135,12 @@ public class PathFinding {
     
     }
     public void reset(){
-       // loca = null;
-      //  temploca = null;
         checkNext.clear();
         moveable.clear();
         Path.clear();
         neighbours.clear();
+        openlist.clear();
+        closedlist.clear();
         ready = false;
       
     }
@@ -181,92 +181,21 @@ public class PathFinding {
                 ready = true;
   
                } 
-      
-      
-      
-
-      
-    public void getPath(Vector2 start){
-    
-    }
-            
-public Vector2 checkxAxis(Vector2 end,Vector2 east,Vector2 west){
-      
-      if(moveable.contains(maplist.get(east)) && maplist.containsKey(east)  ){ 
-          
-          if(diff.x >= 0) {easti =  Math.abs(east.x - end.x) ; 
-                           System.out.println("easti:" + easti);} 
-                           }else{easti = 100000;
-                  System.out.println("easti:" + easti);}
-          if(moveable.contains(maplist.get(west)) && maplist.containsKey(west)  ){  
-              if(diff.x >= 0) {
-                    westi =  Math.abs(west.x - end.x) ;
-                           System.out.println("westi:" + westi);}  }else{westi = 100000; System.out.println("westi:" + westi);}
-          if(easti > westi){
-            xAxis = west;
-            temploca = west;
-             System.out.println("settingwest:" + west );
-           
-            return xAxis;
-          }
-          if(westi>easti){
-           xAxis = east;
-           //checkNext.add(0,new Vector2(east));
-             System.out.println("setting est:" );
-             temploca = east;
-            
-           return xAxis;
-          }
-    
-      
-      return xAxis;
-}
-public Vector2 checkyAxis(Vector2 end,Vector2 north,Vector2 south){
-      
-      if(moveable.contains(maplist.get(north)) && maplist.containsKey(north)  ){ 
-          
-          if(diff.x >= 0) {easti =  Math.abs(north.y - end.y) ; 
-                           System.out.println("easti:" + easti);} 
-                           }else{easti = 100000;
-                  System.out.println("easti:" + easti);}
-          if(moveable.contains(maplist.get(south)) && maplist.containsKey(south)  ){  
-              if(diff.x >= 0) {
-                    westi =  Math.abs(south.y - end.y) ;
-                           System.out.println("westi:" + westi);}  }else{westi = 100000; System.out.println("westi:" + westi);}
-          if(easti > westi){
-            yAxis = south;
-            temploca = south;
-             System.out.println("settingsouth:" );
-           
-            return xAxis;
-          }
-          if(westi>easti){
-           yAxis = north;
-          // checkNext.add(0,new Vector2(south));
-             System.out.println("setting north:" );
-             temploca = north;
-            
-           return yAxis;
-          }
-    
-      
-      return yAxis;
-}
-public void getNeighbor(Tile t){
+    public void getNeighbor(Tile t){
    
         neighbours.add(maplist.get(new Vector2(t.getX()+tsize,t.getY())));
         neighbours.add(maplist.get(new Vector2(t.getX()-tsize,t.getY())));
         neighbours.add(maplist.get(new Vector2(t.getX(),t.getY()+tsize)));
         neighbours.add(maplist.get(new Vector2(t.getX(),t.getY()-tsize)));
      }
-public void setDistanceToEnd(Tile current,Vector2 end){
+    public void setDistanceToEnd(Tile current,Vector2 end){
         current.setDistance((Math.abs(current.getX() - Math.round(end.x))) +(Math.abs(current.getY()-Math.round(end.y))));
 
      }
-public void setHeuristic(Tile current){
+    public void setHeuristic(Tile current){
         current.setHeuristic(current.getDistance() + 10*steps);
 }
-public void getNeighborsInOpenList(Tile t){
+    public void getNeighborsInOpenList(Tile t){
 
         System.out.println("nighbor");
         if(moveable.contains(maplist.get(new Vector2(t.getX()+tsize,t.getY()))) && !closedlist.contains(maplist.get(new Vector2(t.getX()+tsize,t.getY())))){
@@ -283,4 +212,5 @@ public void getNeighborsInOpenList(Tile t){
             maplist.get(new Vector2(t.getX(),t.getY()-tsize)).setParent(maplist.get(new Vector2(t.x,t.y)));}
      
                     }
+    
 }

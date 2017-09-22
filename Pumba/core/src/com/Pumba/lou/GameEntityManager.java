@@ -21,6 +21,7 @@ public class GameEntityManager implements Serializable{
     ArrayList<GameEntity> entitys;
     ArrayList<GameEntity> entitysDead;
     ArrayList<GameEntity> towns;
+    int Gold;
       public GameEntityManager(){
            entitys = new ArrayList<GameEntity>();
            entitysDead = new ArrayList<GameEntity>();
@@ -36,6 +37,12 @@ public class GameEntityManager implements Serializable{
       }
       public void setEntitys( ArrayList<GameEntity> entitys){
          this.entitys = entitys;
+      }
+      public int getGold(){
+        return Gold;
+      }
+      public void setGold(int amount){
+        Gold = amount;
       }
       public GameEntity getEntity(int index){
          return entitys.get(index);
@@ -89,7 +96,7 @@ public class GameEntityManager implements Serializable{
       }
       public void giveGold(Player p){
             for(GameEntity e : towns){
-               p.increaseGold(100);
+               p.increaseGold(100,e.getisEnemy());
             }
       
       }

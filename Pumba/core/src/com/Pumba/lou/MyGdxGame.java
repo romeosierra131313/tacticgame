@@ -3,6 +3,7 @@ package com.Pumba.lou;
 import com.Pumba.lou.Constants.GameState;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.TextInputListener;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
@@ -121,6 +122,12 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
                    
                }
                if(gs == gs.Game ){
+                   if(mg.getGameOver()){
+                      
+                       changeState();
+                       Gdx.input.setInputProcessor(this);
+                       setupCamera();
+                   }
                    sb.begin();
                    sr.begin();
                    mg.render(sb,sr,bf);
@@ -140,7 +147,12 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
 	}
 @Override
     public boolean keyDown(int i) {
-        
+        if (Gdx.input.isKeyPressed(Input.Keys.NUM_2)){
+          camera.zoom -= 2f;
+         } 
+        if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)){
+          camera.zoom += 2f;
+         }
         return true; }
 @Override
     public boolean keyUp(int i) {
@@ -252,6 +264,21 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor ,Tex
        ass.load("unit1.png",Texture.class);
        ass.load("dead.png", Texture.class);
        ass.load("tree1.png",Texture.class);
+       ass.load("grasscenter.png", Texture.class);
+       ass.load("grasstopleftcorner.png", Texture.class);
+       ass.load("grasstoprightcorner.png", Texture.class);
+       ass.load("grassbottomleftcorner.png", Texture.class);
+       ass.load("grassbottomrightcorner.png", Texture.class);
+       ass.load("grassrightedge.png", Texture.class);
+       ass.load("grassleftedge.png", Texture.class);
+       ass.load("grasstopedge.png", Texture.class);
+       ass.load("grassbottomedge.png", Texture.class);
+       ass.load("grassleftl.png", Texture.class);
+       ass.load("grassrightl.png", Texture.class);
+       ass.load("grassleftb.png", Texture.class);
+       ass.load("grassrightb.png", Texture.class);
+      
+       
        ass.finishLoading();
            }
     private void getmapsize() {

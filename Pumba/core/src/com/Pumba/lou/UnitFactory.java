@@ -33,8 +33,8 @@ public class UnitFactory {
            if(type.equals("unit1")){
               e.newEntity(x,y);
               e.setHitbox(x, y, 128, 128);
-              e.setHp(10);
-              e.setAttack(10);
+              e.setHp(16);
+              e.setAttack(16);
               e.setType(type);
               e.setisEnemy(b);
                px.PutColor("unit.png",b);
@@ -46,8 +46,8 @@ public class UnitFactory {
            if(type.equals("unit2")){
               e.newEntity(x,y);
               e.setHitbox(x, y, 128, 128);
-              e.setHp(10);
-              e.setAttack(10);
+              e.setHp(11);
+              e.setAttack(4);
               e.setType(type);
               e.setisEnemy(b);
                px.PutColor("unit2.png",b);

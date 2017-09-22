@@ -17,12 +17,14 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 /**
@@ -45,8 +47,8 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
      UnitFactory uf;
      GameEntityManager gem;
      ArrayList<Tile> ui ;
-     
-    
+     HashMap<Vector2,Tile> maplist;
+     ArrayList<String> types = new ArrayList<String>();
     
      public Editor(int height, int width,int size,OrthographicCamera camera, AssetManager ass){
            
@@ -69,8 +71,9 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
      mouse.set(0, 0, 1, 1);
       creategrid(mWidth,mHeight);
       ui = new ArrayList<Tile>();
+      maplist = new  HashMap<Vector2,Tile>();
       createUI();
-     
+      
       
       
      }
@@ -125,8 +128,27 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
         if (Gdx.input.isKeyPressed(Keys.NUM_7)){
            typeSelected = "entity";
          }
+        if (Gdx.input.isKeyPressed(Keys.NUM_8)){
+           typeSelected = "townn";
+         }
         if (Gdx.input.isKeyPressed(Keys.M)){
            camera.zoom -= 2f;
+         }
+        if (Gdx.input.isKeyPressed(Keys.P)){
+            int h =0;
+           for(Tile t : m.tList){
+             getNeighbours(new Vector2(m.tList.get(h).getX(),m.tList.get(h).getY()));
+               changeTile(m.tList.get(h));
+               types.clear();
+               
+              h++;
+           }
+         }
+        if (Gdx.input.isKeyPressed(Keys.O)){
+           mouse.set(0,0,500,500);
+         }
+        if (Gdx.input.isKeyPressed(Keys.I)){
+           mouse.set(0,0,1,1);
          }
         if (Gdx.input.isKeyPressed(Keys.SPACE)){
            main = true;
@@ -138,6 +160,7 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
               m.tList.get(h).setTile("grass",getTexture(typeSelected,ass));
               m.tList.get(h).isSet = true;
               setTileDecor( m.tList.get(h)); 
+              maplist.put(new Vector2(m.tList.get(h).getX(),m.tList.get(h).getY()), m.tList.get(h));
               h++;
            }
          } 
@@ -206,11 +229,14 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
                setTileDecor( m.tList.get(h)); 
             }
             if(typeSelected == "water" ){
-               m.tList.get(h).setTile("water", getTexture(typeSelected,ass));
+               getNeighbours(new Vector2(m.tList.get(h).getX(),m.tList.get(h).getY()));
+               changeTile(m.tList.get(h));
+               types.clear();
                m.tList.get(h).isPathable=false; 
                setTileDecor( m.tList.get(h)); 
             }
             if(typeSelected =="grass" ){
+               
                m.tList.get(h).setTile("grass",getTexture(typeSelected,ass));
                m.tList.get(h).isPathable=true;
                setTileDecor( m.tList.get(h)); 
@@ -527,4 +553,95 @@ public class Editor extends MyGdxGame implements InputProcessor , Serializable ,
              
         }
    }
+   public void getNeighbours(Vector2 v){
+       if(maplist.get(new Vector2(v.x,v.y + tSize)) !=null){
+       types.add(maplist.get(new Vector2(v.x,v.y + tSize)).type); }   /////////NORTH  
+       if(maplist.get(new Vector2(v.x - tSize,v.y)) != null){
+       types.add(maplist.get(new Vector2(v.x - tSize,v.y)).type); }   /////////WEST 
+       if(maplist.get(new Vector2(v.x,v.y - tSize))!=null){
+       types.add(maplist.get(new Vector2(v.x,v.y - tSize)).type); }   /////////SOUTH 
+       if(maplist.get(new Vector2(v.x + tSize,v.y)) != null){
+       types.add(maplist.get(new Vector2(v.x + tSize,v.y)).type);  }  //////////EAST
+         
+     }
+    public void changeTile(Tile t){
+      //  GGG      WWW
+      //  GGG      WGG
+      //  GGG      WGG
+         String all = "";
+         for(int i =0 ; i < types.size() ;i++){   /////////Constructing one string to be compared
+             String temp = types.get(i).substring(0, 5);
+             System.out.println(temp);
+            if(temp.compareTo("grass") == 0){
+               all = all.concat("G");
+            } 
+            if(types.get(i).compareTo("water")==0){
+                System.out.println("added a w");
+              all = all.concat("W");
+            }
+           
+            
+         }
+         System.out.println(all);
+         //////////analyze the string to find a matching set 
+         if(all.compareTo("GGGG")==0 && typeSelected.compareTo("water") == 0){
+             if(maplist.get(new Vector2(t.getX()+tSize,t.getY() + tSize)).type.equals("water")){
+                t.type = "grassleftb";
+                return;
+             }
+             if(maplist.get(new Vector2(t.getX()-tSize,t.getY() + tSize)).type.equals("water")){
+                t.type = "grassrightb";
+                return;
+             }
+             if(maplist.get(new Vector2(t.getX()+tSize,t.getY() - tSize)).type.equals("water")){
+                t.type = "grassleftl";
+                return;
+             }
+             if(maplist.get(new Vector2(t.getX()-tSize,t.getY() - tSize)).type.equals("water")){
+                t.type = "grassrightl";
+                return;
+             }
+            
+             
+            t.isPathable=false;
+         }
+         if(all.compareTo("WWGG")==0){
+            t.type = "grasstopleftcorner";
+             t.isPathable=false; 
+         }
+         if(all.compareTo("GGWW")==0){
+            t.type = "grassbottomrightcorner";
+             t.isPathable=false; 
+         }
+         if(all.compareTo("WGGW")==0){
+            t.type = "grasstoprightcorner";
+             t.isPathable=false; 
+         }
+         if(all.compareTo("GWWG")==0){
+            t.type = "grassbottomleftcorner";
+             t.isPathable=false; 
+         }
+         if(all.compareTo("GGGW")==0){
+            t.type = "grassrightedge";
+             t.isPathable=false; 
+         }
+         if(all.compareTo("GWGG")==0){
+            t.type = "grassleftedge";
+             t.isPathable=false; 
+         }
+         if(all.compareTo("GGWG")==0){
+            t.type = "grassbottomedge";
+             t.isPathable=false; 
+         }
+         if(all.compareTo("WGGG")==0){
+            t.type = "grasstopedge";
+             t.isPathable=false; 
+         }
+         ///GGGW r
+         ///GWGG l
+         ////GGWGtop
+         ///WGGG butt
+        
+         ////////////ADD MORE SENARIOS HERE///////////////////////////////////////
+    }
 }

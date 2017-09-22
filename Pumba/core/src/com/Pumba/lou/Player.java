@@ -19,8 +19,9 @@ public class Player {
     public int getGold(){
       return Gold;
     }
-    public void increaseGold(int amount){
-         Gold += amount;
+    public void increaseGold(int amount, Boolean isEnemy){
+        if(this.isEnemy = isEnemy){
+         Gold += amount;}
     }
     public void setisEnemy(Boolean b){
       isEnemy = b;

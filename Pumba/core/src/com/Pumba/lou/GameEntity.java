@@ -169,7 +169,6 @@ public int getAttack(){
  return attack;
 }
 public void getAttacked(int attack){
-    System.out.println(hp);
  setHp(getHp()-attack);
  if(hp <= 0){
    isDead = true;
